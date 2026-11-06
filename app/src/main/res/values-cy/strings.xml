@@ -427,7 +427,7 @@
     <string name="target_user">Defnyddiwr targed</string>
     <string name="media_attachment_empty">Atodiadau cyfryngau ar goll.</string>
     <string name="media_attachment_still_uploading">Nid yw uwchlwytho\'r cyfryngau wedi\'i gwblhau eto.</string>
-    <string name="app_name">Subway Tooter</string>
+    <string name="app_name">Densha</string>
     <string name="statuses">Tŵtiau</string>
     <string name="display_name_boosted_by">%1$s hybu</string>
     <string name="column_index">%1$d/%2$d</string>

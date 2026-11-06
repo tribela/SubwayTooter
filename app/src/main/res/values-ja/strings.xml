@@ -108,7 +108,7 @@
     <string name="cant_follow_locked_user">鍵つきユーザをフォローできません</string>
     <string name="cant_get_misskey_app_secret">このMisskeyサーバーのアプリ登録APIは応答にapp secretが含まれません。Misskeyをアップデートするようサーバー運営に相談してください。</string>
     <string name="cant_get_web_setting_visibility">Webアプリの公開範囲の設定を取得できません。Mastodonサーバーのバージョンが古いです。</string>
-    <string name="cant_handle_uri_of">Subway Tooter は URI \"%1$s\"を扱えません。別のアプリを選んでください。</string>
+    <string name="cant_handle_uri_of">Densha は URI \"%1$s\"を扱えません。別のアプリを選んでください。</string>
     <string name="cant_remove_boost_while_favourited">お気に入りを外さないとブーストを外せません？</string>
     <string name="cant_sync_toot">投稿を同期できません</string>
     <string name="card_header_author">Author</string>

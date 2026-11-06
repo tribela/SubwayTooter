@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name" translatable="false">Subway Tooter</string>
+    <string name="app_name" translatable="false">Densha</string>
     <string name="action_settings">Settings</string>
     <string name="account_add">Add an account</string>
     <string name="instance">Server</string>
@@ -593,7 +593,7 @@
     <string name="media_attachment_max_byte_size_movie">Media attachment (movie) bytes size limit (Unit:MB. The default is 40)</string>
     <string name="media_attachment_max_byte_size_pixelfed">Media attachment (Pixelfed) bytes size limit (Unit:MB. The default is 15)</string>
     <string name="tootsearch">tootsearch (JP)</string>
-    <string name="cant_handle_uri_of">Subway Tooter can\'t handle URI \"%1$s\". Please select other app.</string>
+    <string name="cant_handle_uri_of">Densha can\'t handle URI \"%1$s\". Please select other app.</string>
     <string name="use_internal_media_viewer">Use built-in media viewer</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>

@@ -19,7 +19,7 @@
     <string name="confirm_delete_attachment">이 첨부파일을 삭제할까요\?</string>
     <string name="post_error_contents_empty">내용을 입력하세요.</string>
     <string name="confirm">확인</string>
-    <string name="app_name">서브웨이 투터</string>
+    <string name="app_name">Densha</string>
     <string name="instance_not_specified">서버 지정 안 됨</string>
     <string name="mail_not_specified">이메일 지정 안 됨</string>
     <string name="password_not_specified">비밀번호 지정 안 됨</string>
@@ -573,7 +573,7 @@
     <string name="media_attachment_max_byte_size">첨부 미디어 (이미지) 최대 바이트 수 (단위:MB. 기본값은 8)</string>
     <string name="media_attachment_max_byte_size_movie">첨부 미디어 (동영상) 최대 바이트 수 (단위:MB. 기본값은 40)</string>
     <string name="tootsearch">툿검색 (JP)</string>
-    <string name="cant_handle_uri_of">서브웨이 투터는 URI \"%1$s\"를 다룰 수 없습니다. 다른 앱을 선택하세요.</string>
+    <string name="cant_handle_uri_of">Densha는 URI \"%1$s\"를 다룰 수 없습니다. 다른 앱을 선택하세요.</string>
     <string name="use_internal_media_viewer">내장 미디어 뷰어를 사용</string>
     <string name="previous">이전</string>
     <string name="next">다음</string>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="language_code">he</string>
-    <string name="app_name">Subway Tooter</string>
+    <string name="app_name">Densha</string>
     <string name="action_settings">הגדרות</string>
     <string name="account_add">הוסף חשבון</string>
     <string name="instance">שרת</string>

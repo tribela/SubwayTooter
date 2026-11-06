@@ -26,10 +26,10 @@
     <string name="already_boosted">Déjà partagé.</string>
     <string name="already_favourited">Déjà dans les favoris.</string>
     <string name="api_error">Erreur API %1$s</string>
-    <string name="app_about">À propos de Subway Tooter</string>
+    <string name="app_about">À propos de Densha</string>
     <string name="app_exit">Fermer l’application</string>
-    <string name="app_name">Subway Tooter</string>
-    <string name="app_setting">Paramètres de Subway Tooter</string>
+    <string name="app_name">Densha</string>
+    <string name="app_setting">Paramètres de Densha</string>
     <string name="app_was_muted">L’application a étée silenciée.</string>
     <string name="application_is">App : %1$s</string>
     <string name="ask_always">Toujours demander</string>
@@ -336,8 +336,8 @@
     <string name="reply_to_in_draft_is_lost">Le pouet auquel ce brouillon fait référence n’existe plus, vous ne pouvez plus y répondre a un contexte supprimé : in_reply_to</string>
     <string name="restore_draft">Restaurer un brouillon</string>
     <string name="select_draft">Quel brouillon désirez-vous restaurer ?</string>
-    <string name="app_data_export">Exporter les données de Subway Tooter</string>
-    <string name="app_data_import">Importer les données dans Subway Tooter</string>
+    <string name="app_data_export">Exporter les données de Densha</string>
+    <string name="app_data_import">Importer les données dans Densha</string>
     <string name="app_data_import_confirm">Toutes les données existantes (avant import) seront effacées.  Êtes-vous sur \?</string>
     <string name="app_data_import_desc">Vous pouvez exporter les données vers n’importe quelle application qui peut recevoir des données, mais vous ne pouvez importer des données qu\'à partir du stockage de l’appareil ou du Google Drive.
 \nL’image d’arrière-plan d’une colonne ne peut être exportée/importée sur l’appareil.
@@ -565,7 +565,7 @@
     <string name="toot_search_ts">Recherche de messages (ts)</string>
     <string name="toot_search_ts_of">Recherche de messages (ts) « %1$s »</string>
     <string name="tootsearch">tootsearch (JP)</string>
-    <string name="cant_handle_uri_of">Subway Tooter ne peut pas gérer les URI \"%1$s\". Veuillez sélectionner une autre application.</string>
+    <string name="cant_handle_uri_of">Densha ne peut pas gérer les URI \"%1$s\". Veuillez sélectionner une autre application.</string>
     <string name="use_internal_media_viewer">Utiliser la visionneuse de médias intégrée</string>
     <string name="previous">Précédent</string>
     <string name="next">Suivant</string>

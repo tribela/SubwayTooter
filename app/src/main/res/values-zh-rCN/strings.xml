@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="language_code">cn</string>
-    <string name="app_name">Subway Tooter</string>
+    <string name="app_name">Densha</string>
     <string name="action_settings">设置</string>
     <string name="user_password">密码</string>
     <string name="cancel">取消</string>
@@ -889,7 +889,7 @@
     <string name="next">往后</string>
     <string name="previous">往前</string>
     <string name="use_internal_media_viewer">使用内置媒体查看器</string>
-    <string name="cant_handle_uri_of">Subway Tooter 无法处理链接“%1$s”，请选择另一个应用。</string>
+    <string name="cant_handle_uri_of">Densha 无法处理链接“%1$s”，请选择另一个应用。</string>
     <string name="tootsearch">嘟文搜索（JP）</string>
     <string name="media_attachment_max_byte_size_pixelfed">媒体附件（Pixelfed）字节数限制（单位：MB，默认为15）</string>
     <string name="media_attachment_max_byte_size_movie">媒体附件（视频）字节数限制（单位：MB，默认为40）</string>

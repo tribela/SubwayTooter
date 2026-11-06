@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Undergrunnstuter</string>
+    <string name="app_name">Densha</string>
     <string name="action_settings">Innstillinger</string>
     <string name="account_add">Legg til en konto</string>
     <string name="instance">Instans</string>
@@ -662,7 +662,7 @@
     <string name="media_attachment_max_byte_size">Maksimal størrelse for mediavedlegg (bilde) (Enhet:Megabyte. Forvalget er 8)</string>
     <string name="media_attachment_max_byte_size_movie">Maksimal størrelse for mediavedlegg (film) (Enhet:Megabyte. Forvalget er 40)</string>
     <string name="tootsearch">tutsøk (JP)</string>
-    <string name="cant_handle_uri_of">Subway Tooter kan ikke håndtere URI-en \"%1$s\". Velg et annet program.</string>
+    <string name="cant_handle_uri_of">Densha kan ikke håndtere URI-en \"%1$s\". Velg et annet program.</string>
     <string name="media_attachment_type_error">Mediavedleggstypen er \"%1$s\". ST kan ikke håndtere den, men du kan prøve å åpne den i en nettleser.</string>
     <string name="video_buffering">Mellomlagrer…</string>
     <string name="dont_repeat_download_to_same_url">Kan ikke laste ned samme nettadresse i løpet av et par sekunder.</string>

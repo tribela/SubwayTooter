@@ -23,7 +23,7 @@ android {
     namespace = "jp.juggler.subwaytooter"
 
     defaultConfig {
-        applicationId = namespace
+        applicationId = "io.github.tribela.densha"
         versionCode = 551
         versionName = "5.551"
     }

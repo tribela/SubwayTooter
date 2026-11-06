@@ -24,7 +24,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SubwayTooter"
+rootProject.name = "Densha"
 // base utilities
 include(":base")
 

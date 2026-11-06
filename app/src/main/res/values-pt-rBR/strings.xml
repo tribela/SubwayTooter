@@ -418,7 +418,7 @@
     <string name="your_lists">Suas listas</string>
     <string name="media_attachment_max_byte_size_movie">Limite de bytes do tamanho do anexo de mídia (filme) (unidade: MB. O padrão é 40)</string>
     <string name="media_attachment_max_byte_size_pixelfed">Limite de bytes do tamanho do anexo de mídia (Pixelfed) (unidade: MB. O padrão é 15)</string>
-    <string name="cant_handle_uri_of">Subway Tooter não pode lidar com a URI \"%1$s\". Por favor selecione outro app.</string>
+    <string name="cant_handle_uri_of">Densha não pode lidar com a URI \"%1$s\". Por favor selecione outro app.</string>
     <string name="use_internal_media_viewer">Usar o visualizador de mídia nativo</string>
     <string name="previous">Anterior</string>
     <string name="next">Próximo</string>

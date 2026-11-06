@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Subway Tooter</string>
+    <string name="app_name">Densha</string>
     <string name="action_settings">Configuració</string>
     <string name="account_add">Afegeix un compte</string>
     <string name="instance">Servidor</string>
@@ -595,7 +595,7 @@
     <string name="media_attachment_max_byte_size_movie">Límit de mida en bytes de les adjuncions de vídeos (Unitat:MB. Per defecte és 40)</string>
     <string name="media_attachment_max_byte_size_pixelfed">Límit de mida en bytes de les adjuncions de mèdia (Pixelfed) (Unitat:MB. Per defecte és 15)</string>
     <string name="tootsearch">cerca de brams (JP)</string>
-    <string name="cant_handle_uri_of">Subway Tooter no pot processar l\'URI \"%1$s\". Selecciona sisplau una altra aplicació.</string>
+    <string name="cant_handle_uri_of">Densha no pot processar l\'URI \"%1$s\". Selecciona sisplau una altra aplicació.</string>
     <string name="use_internal_media_viewer">Emprar el visualitzador de mèdia incorporat</string>
     <string name="previous">Anterior</string>
     <string name="next">Següent</string>
