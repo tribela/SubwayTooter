@@ -49,7 +49,9 @@ import jp.juggler.util.log.LogCategory
 import jp.juggler.util.ui.applyAlphaMultiplier
 import jp.juggler.util.ui.attrColor
 import jp.juggler.util.ui.resDrawable
+import androidx.appcompat.widget.AppCompatTextView
 import org.jetbrains.anko.UI
+import org.jetbrains.anko.custom.customView
 import org.jetbrains.anko._LinearLayout
 import org.jetbrains.anko.allCaps
 import org.jetbrains.anko.backgroundDrawable
@@ -126,6 +128,10 @@ class ItemViewHolder(
     lateinit var llContents: View
     lateinit var tvMentions: MyTextView
     internal lateinit var tvContent: MyTextView
+
+    lateinit var llTranslation: View
+    lateinit var tvTranslationHeader: AppCompatTextView
+    internal lateinit var tvTranslationContent: MyTextView
 
     lateinit var flMedia: View
     lateinit var llMedia: View
@@ -269,6 +275,7 @@ class ItemViewHolder(
         // リンク処理用のMyLinkMovementMethod
         for (v in arrayOf(
             tvContent,
+            tvTranslationContent,
             tvMentions,
             tvContentWarning,
             tvCardText,
@@ -283,6 +290,7 @@ class ItemViewHolder(
             tvMentions.textSize = f
             tvContentWarning.textSize = f
             tvContent.textSize = f
+            tvTranslationContent.textSize = f
             btnShowMedia.textSize = f
             btnCardImageShow.textSize = f
             tvApplication.textSize = f
@@ -324,6 +332,7 @@ class ItemViewHolder(
             tvMentions.setLineSpacing(0f, spacing)
             tvContentWarning.setLineSpacing(0f, spacing)
             tvContent.setLineSpacing(0f, spacing)
+            tvTranslationContent.setLineSpacing(0f, spacing)
             btnShowMedia.setLineSpacing(0f, spacing)
             btnCardImageShow.setLineSpacing(0f, spacing)
             tvApplication.setLineSpacing(0f, spacing)
@@ -711,6 +720,22 @@ class ItemViewHolder(
                 setLineSpacing(lineSpacingExtra, 1.1f)
             }.lparams(matchParent, wrapContent) {
                 topMargin = dip(3)
+            }
+
+            llTranslation = verticalLayout {
+                lparams(matchParent, wrapContent) {
+                    topMargin = dip(4)
+                }
+                visibility = View.GONE
+
+                tvTranslationHeader = customView<AppCompatTextView> {
+                    textSize = 12f
+                    setPadding(0, dip(4), 0, dip(2))
+                }.lparams(matchParent, wrapContent)
+
+                tvTranslationContent = myTextView {
+                    setLineSpacing(lineSpacingExtra, 1.1f)
+                }.lparams(matchParent, wrapContent)
             }
 
             val thumbnailHeight = actMain.appState.mediaThumbHeight

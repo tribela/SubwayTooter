@@ -251,6 +251,13 @@ class TootInstance(parser: TootParser, src: JsonObject) {
     val canUseReference: Boolean?
         get() = fedibirdCapabilities?.contains("status_reference")
 
+    // Mastodon 4.0+ の翻訳機能が有効か
+    val translationEnabled: Boolean?
+        get() = when {
+            instanceType != InstanceType.Mastodon -> false
+            else -> configuration?.jsonObject("translation")?.boolean("enabled")
+        }
+
     fun versionGE(check: VersionString) = decoded_version.ge(check)
 
     companion object {

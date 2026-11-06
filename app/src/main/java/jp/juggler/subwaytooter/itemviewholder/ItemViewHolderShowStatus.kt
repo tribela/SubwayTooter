@@ -176,6 +176,43 @@ fun ItemViewHolder.showStatus(
     makeReactionsView(status)
     buttonsForStatus?.bind(status, (item as? TootNotification))
     showApplicationAndLanguage(status)
+    showTranslation(status)
+}
+
+// 翻訳結果の表示 (Mastodon 4.0+)
+fun ItemViewHolder.showTranslation(status: TootStatus) {
+    val target = status.reblog ?: status
+    val translation = target.translation
+    if (translation == null || !target.show_translation) {
+        llTranslation.visibility = View.GONE
+        return
+    }
+
+    llTranslation.visibility = View.VISIBLE
+    tvTranslationHeader.setTextColor(colorTextContent)
+    tvTranslationHeader.alpha = 0.7f
+    tvTranslationContent.setTextColor(colorTextContent)
+
+    val lang = translation.detected_source_language ?: translation.language
+    val provider = translation.provider
+    val header = when {
+        lang != null && provider != null ->
+            activity.getString(R.string.translation_header, lang, provider)
+
+        lang != null ->
+            activity.getString(R.string.translation_header_no_provider, lang)
+
+        else ->
+            activity.getString(R.string.translation)
+    }
+    tvTranslationHeader.text = header
+    tvTranslationHeader.setOnClickListener(null)
+    tvTranslationHeader.isClickable = false
+
+    val sb = SpannableStringBuilder()
+    translation.decoded_spoiler_text?.let { sb.append(it).append("\n\n") }
+    sb.append(translation.decoded_content)
+    tvTranslationContent.text = sb
 }
 
 // 投票の表示
