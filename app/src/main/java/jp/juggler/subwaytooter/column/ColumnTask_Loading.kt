@@ -32,16 +32,34 @@ class ColumnTask_Loading(
 
     internal var listPinned: ArrayList<TimelineItem>? = null
 
+    // プロフィールのヘッダ(アカウント情報・featured tags)を読み込み中か
+    internal var progressTargetHeader = false
+
     private fun fireProgress(s: String) {
+        val targetHeader = progressTargetHeader
         runOnMainLooper {
             if (isCancelled) return@runOnMainLooper
-            column.taskProgress = s
-            column.fireShowContent(reason = "loading progress", changeList = ArrayList())
+            if (targetHeader) {
+                column.profileHeaderProgress = s.ifBlank { null }
+            } else {
+                column.taskProgress = s.ifBlank { null }
+                if (column.bHasSeed && s.isNotBlank()) {
+                    val idx = column.listData.indexOfLast { it is TootMessageHolder }
+                    if (idx >= 0) column.listData[idx] = TootMessageHolder(s)
+                }
+            }
+            column.fireShowContent(
+                reason = "loading progress",
+                changeList = ArrayList(),
+                reset = column.bHasSeed,
+            )
         }
     }
 
     override suspend fun background(): TootApiResult? {
         ctStarted.set(true)
+        // プロフィールは最初の段階からヘッダ向けの進捗を出す
+        progressTargetHeader = column.type == ColumnType.PROFILE
 
         if (PrefB.bpOpenSticker.value) {
             fireProgress("loading openSticker")
@@ -93,9 +111,23 @@ class ColumnTask_Loading(
 
         column.bInitialLoading = false
         column.lastTask = null
+        column.profileHeaderProgress = null
+        column.taskProgress = null
 
         if (result.error != null) {
             column.mInitialLoadingError = "${result.error} ${result.requestInfo}".trim()
+            if (column.bHasSeed) {
+                val kept = column.listData.filter { it !is TootMessageHolder }
+                column.listData.clear()
+                column.listData.addAll(kept)
+                column.listData.addAll(
+                    listOf(
+                        TootMessageHolder(
+                            context.getString(R.string.load_failed, result.error ?: "")
+                        )
+                    )
+                )
+            }
         } else {
             column.duplicateMap.clear()
             column.listData.clear()

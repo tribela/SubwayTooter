@@ -882,6 +882,7 @@
     <string name="vote_1">1표</string>
     <string name="default_">기본</string>
     <string name="translation">번역됨</string>
+    <string name="load_failed">불러오지 못했습니다: %1$s</string>
     <string name="translation_header">%1$s에서 %2$s 번역</string>
     <string name="translation_header_no_provider">%1$s에서 번역</string>
     <string name="show_original">원문 보기</string>

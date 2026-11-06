@@ -942,6 +942,7 @@
     <string name="translate">Translate</string>
     <string name="translation_app">Translation app</string>
     <string name="translation">Translated</string>
+    <string name="load_failed">Couldn\'t load: %1$s</string>
     <string name="translation_header">Translated from %1$s by %2$s</string>
     <string name="translation_header_no_provider">Translated from %1$s</string>
     <string name="show_original">Show original</string>

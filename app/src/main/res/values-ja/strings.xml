@@ -936,6 +936,7 @@
     <string name="translate">翻訳</string>
     <string name="translation_app">翻訳アプリ</string>
     <string name="translation">翻訳</string>
+    <string name="load_failed">読み込めませんでした: %1$s</string>
     <string name="translation_header">%2$s による %1$s からの翻訳</string>
     <string name="translation_header_no_provider">%1$s からの翻訳</string>
     <string name="show_original">原文を表示</string>

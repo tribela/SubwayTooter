@@ -195,6 +195,17 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="3dp" />
 
+    <TextView
+        android:id="@+id/tvProfileProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:gravity="center"
+        android:textColor="?attr/colorTimeSmall"
+        android:textSize="12sp"
+        android:visibility="gone"
+        tools:text="Acquiring: GET /api/v1/accounts/..." />
+
 
     <TextView
         android:id="@+id/tvLastStatusAt"

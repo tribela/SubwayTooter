@@ -250,6 +250,7 @@ class Column(
     internal var mRefreshLoadingErrorPopupState: Int = 0
 
     internal var taskProgress: String? = null
+    internal var profileHeaderProgress: String? = null
 
     internal val listData = BucketList<TimelineItem>()
     internal val duplicateMap = DuplicateMap()

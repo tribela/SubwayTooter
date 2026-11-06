@@ -713,7 +713,9 @@ enum class ColumnType(
         headerType = HeaderType.Profile,
 
         loading = { client ->
+            progressTargetHeader = true
             val whoResult = column.loadProfileAccount(client, parser, true)
+            progressTargetHeader = false
             when {
                 client.isApiCancelled() || column.whoAccount == null -> whoResult
                 else -> column.profileTab.ct.loading(this, client)

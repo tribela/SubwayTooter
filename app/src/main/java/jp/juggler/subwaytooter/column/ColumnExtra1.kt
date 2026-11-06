@@ -5,6 +5,7 @@ import android.view.View
 import jp.juggler.subwaytooter.R
 import jp.juggler.subwaytooter.api.entity.EntityId
 import jp.juggler.subwaytooter.api.entity.TimelineItem
+import jp.juggler.subwaytooter.api.entity.TootMessageHolder
 import jp.juggler.subwaytooter.api.entity.TootStatus
 import jp.juggler.subwaytooter.columnviewholder.ColumnViewHolder
 import jp.juggler.subwaytooter.columnviewholder.scrollToTop
@@ -295,10 +296,19 @@ fun Column.startLoading(reason: ColumnLoadReason) {
     idRecent = null
     offsetNext = 0
     pagingType = ColumnPagingType.Default
+    taskProgress = null
+    profileHeaderProgress = null
 
     duplicateMap.clear()
-    // 既知のデータを先に表示している場合は、取得完了まで残す
-    if (!bHasSeed) listData.clear()
+    if (bHasSeed) {
+        // 既知のデータは残し、空き領域に読み込み中のラベルを置く
+        val seedItems = listData.filter { it !is TootMessageHolder }
+        listData.clear()
+        listData.addAll(seedItems)
+        listData.addAll(listOf(TootMessageHolder(taskProgress ?: "…")))
+    } else {
+        listData.clear()
+    }
     fireShowContent(reason = "loading start", reset = true)
 
     @SuppressLint("StaticFieldLeak")

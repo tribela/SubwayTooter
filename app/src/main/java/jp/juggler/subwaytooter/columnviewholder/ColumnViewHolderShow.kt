@@ -128,7 +128,7 @@ internal fun ColumnViewHolder.showContent(
     }
 
     val initialLoadingError = column.mInitialLoadingError
-    if (initialLoadingError.isNotEmpty()) {
+    if (initialLoadingError.isNotEmpty() && !column.bHasSeed) {
         showError(initialLoadingError)
         return
     }

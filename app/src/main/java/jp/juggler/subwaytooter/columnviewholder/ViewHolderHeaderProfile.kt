@@ -153,6 +153,8 @@ internal class ViewHolderHeaderProfile(
             null -> bindAccountNull()
             else -> bindAccount(who, whoRef)
         }
+        val progress = column.profileHeaderProgress
+        views.tvProfileProgress.vg(progress != null)?.text = progress
     }
 
     // カラム設定から戻った際に呼ばれる
