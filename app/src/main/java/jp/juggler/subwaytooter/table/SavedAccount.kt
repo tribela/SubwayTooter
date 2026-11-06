@@ -8,6 +8,7 @@ import android.provider.BaseColumns
 import jp.juggler.subwaytooter.R
 import jp.juggler.subwaytooter.api.TootApiClient
 import jp.juggler.subwaytooter.api.TootParser
+import jp.juggler.subwaytooter.api.schemeForLocalDev
 import jp.juggler.subwaytooter.api.auth.Auth2Result
 import jp.juggler.subwaytooter.api.auth.AuthBase
 import jp.juggler.subwaytooter.api.entity.*
@@ -858,7 +859,7 @@ class SavedAccount(
     fun supplyBaseUrl(url: String?): String? =
         when {
             url.isNullOrEmpty() -> null
-            url[0] == '/' -> "https://${apiHost.ascii}$url"
+            url[0] == '/' -> "${apiHost.schemeForLocalDev()}://${apiHost.ascii}$url"
             else -> url
         }
 

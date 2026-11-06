@@ -182,7 +182,8 @@ class App1 : Application() {
                 .readTimeout(timeoutSecondsRead.toLong(), TimeUnit.SECONDS)
                 .writeTimeout(timeoutSecondsRead.toLong(), TimeUnit.SECONDS)
                 .pingInterval(10, TimeUnit.SECONDS)
-                .connectionSpecs(Collections.singletonList(spec))
+                // ローカル開発サーバにHTTPで接続するため、CLEARTEXTも許可する
+                .connectionSpecs(listOf(spec, ConnectionSpec.CLEARTEXT))
                 .sslSocketFactory(MySslSocketFactory, MySslSocketFactory.trustManager)
                 .addInterceptor(ProgressResponseBody.makeInterceptor())
                 .addInterceptor(userAgentInterceptor())

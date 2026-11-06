@@ -453,7 +453,7 @@ class TootApiClient(
 
         try {
             if (!sendRequest(result) {
-                    val url = "https://${apiHost?.ascii}$path"
+                    val url = "${apiHost?.schemeForLocalDev() ?: "https"}://${apiHost?.ascii}$path"
 
                     requestBuilder.url(url)
 

@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.core.net.toUri
 import jp.juggler.subwaytooter.api.TootApiClient
 import jp.juggler.subwaytooter.api.entity.Host
+import jp.juggler.subwaytooter.api.schemeForLocalDev
 import jp.juggler.subwaytooter.api.send
 import jp.juggler.subwaytooter.column.encodeQuery
 import jp.juggler.util.data.JsonObject
@@ -30,7 +31,7 @@ class ApiAuthMastodon(
         "redirect_uris" to callbackUrl,
         "scopes" to scopeString,
     ).encodeQuery().toFormRequestBody().toPost()
-        .url("https://${apiHost.ascii}/api/v1/apps")
+        .url("${apiHost.schemeForLocalDev()}://${apiHost.ascii}/api/v1/apps")
         .build()
         .send(client, errorSuffix = apiHost.pretty)
         .readJsonObject()
@@ -50,7 +51,7 @@ class ApiAuthMastodon(
         put("client_secret", clientSecret)
         put("redirect_uri", callbackUrl)
     }.encodeQuery().toFormRequestBody().toPost()
-        .url("https://${apiHost.ascii}/oauth/token")
+        .url("${apiHost.schemeForLocalDev()}://${apiHost.ascii}/oauth/token")
         .build()
         .send(client, errorSuffix = apiHost.pretty)
         .readJsonObject()
@@ -64,7 +65,7 @@ class ApiAuthMastodon(
         apiHost: Host,
         clientCredential: String,
     ): JsonObject = Request.Builder()
-        .url("https://${apiHost.ascii}/api/v1/apps/verify_credentials")
+        .url("${apiHost.schemeForLocalDev()}://${apiHost.ascii}/api/v1/apps/verify_credentials")
         .header("Authorization", "Bearer $clientCredential")
         .build()
         .send(client, errorSuffix = apiHost.pretty)
@@ -84,7 +85,7 @@ class ApiAuthMastodon(
         put("client_secret", clientSecret)
         put("token", clientCredential)
     }.encodeQuery().toFormRequestBody().toPost()
-        .url("https://${apiHost.ascii}/oauth/revoke")
+        .url("${apiHost.schemeForLocalDev()}://${apiHost.ascii}/oauth/revoke")
         .build()
         .send(client, errorSuffix = apiHost.pretty)
         .readJsonObject()
@@ -107,7 +108,7 @@ class ApiAuthMastodon(
         put("force_login", "true")
         //		+"&access_type=offline"
     }.encodeQuery()
-        .let { "https://${apiHost.ascii}/oauth/authorize?$it" }
+        .let { "${apiHost.schemeForLocalDev()}://${apiHost.ascii}/oauth/authorize?$it" }
         .toUri()
 
     /**
@@ -128,7 +129,7 @@ class ApiAuthMastodon(
         "scope" to scopeString,
         "redirect_uri" to callbackUrl,
     ).encodeQuery().toFormRequestBody().toPost()
-        .url("https://${apiHost.ascii}/oauth/token")
+        .url("${apiHost.schemeForLocalDev()}://${apiHost.ascii}/oauth/token")
         .build()
         .send(client)
         .readJsonObject()
@@ -138,7 +139,7 @@ class ApiAuthMastodon(
         apiHost: Host,
         accessToken: String,
     ): JsonObject = Request.Builder()
-        .url("https://${apiHost.ascii}/api/v1/accounts/verify_credentials")
+        .url("${apiHost.schemeForLocalDev()}://${apiHost.ascii}/api/v1/accounts/verify_credentials")
         .header("Authorization", "Bearer $accessToken")
         .build()
         .send(client, errorSuffix = apiHost.pretty)
@@ -159,7 +160,7 @@ class ApiAuthMastodon(
         put("agreement", params.agreement)
         params.reason?.notEmpty()?.let { put("reason", it) }
     }.encodeQuery().toFormRequestBody().toPost()
-        .url("https://${apiHost.ascii}/api/v1/accounts")
+        .url("${apiHost.schemeForLocalDev()}://${apiHost.ascii}/api/v1/accounts")
         .header("Authorization", "Bearer $clientCredential")
         .build()
         .send(client, errorSuffix = apiHost.pretty)

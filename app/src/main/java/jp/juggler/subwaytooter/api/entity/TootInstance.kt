@@ -4,6 +4,7 @@ import android.os.SystemClock
 import jp.juggler.subwaytooter.api.TootApiClient
 import jp.juggler.subwaytooter.api.TootApiResult
 import jp.juggler.subwaytooter.api.TootParser
+import jp.juggler.subwaytooter.api.schemeForLocalDev
 import jp.juggler.subwaytooter.api.auth.AuthBase
 import jp.juggler.subwaytooter.api.entity.TootAccount.Companion.tootAccount
 import jp.juggler.subwaytooter.pref.PrefB
@@ -306,7 +307,7 @@ class TootInstance(parser: TootParser, src: JsonObject) {
             for (path in arrayOf("/api/v2/instance", "/api/v1/instance")) {
                 val result = TootApiResult.makeWithCaption(apiHost)
                 if (result.error != null) return result
-                val url = "https://${apiHost?.ascii}$path"
+                val url = "${apiHost?.schemeForLocalDev() ?: "https"}://${apiHost?.ascii}$path"
                 if (sendRequest(result) {
                         val builder = Request.Builder().url(url)
                         (forceAccessToken ?: account?.bearerAccessToken)?.notEmpty()?.let {
@@ -336,7 +337,7 @@ class TootInstance(parser: TootParser, src: JsonObject) {
                         (forceAccessToken ?: account?.misskeyApiToken)
                             ?.notEmpty()?.let { put("i", it) }
                     }.toPostRequestBuilder()
-                        .url("https://${apiHost?.ascii}/api/endpoints")
+                        .url("${apiHost?.schemeForLocalDev() ?: "https"}://${apiHost?.ascii}/api/endpoints")
                         .build()
                 }
             ) {
@@ -358,7 +359,7 @@ class TootInstance(parser: TootParser, src: JsonObject) {
                         (forceAccessToken ?: account?.misskeyApiToken)
                             ?.notEmpty()?.let { put("i", it) }
                     }.toPostRequestBuilder()
-                        .url("https://${apiHost?.ascii}/api/meta")
+                        .url("${apiHost?.schemeForLocalDev() ?: "https"}://${apiHost?.ascii}/api/meta")
                         .build()
                 }
             ) {

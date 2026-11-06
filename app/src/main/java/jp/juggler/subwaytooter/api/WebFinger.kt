@@ -15,7 +15,7 @@ private fun NodeList.items() =
     (0 until length).mapNotNull { item(it) }
 
 suspend fun TootApiClient.getApiHostFromWebFinger(apDomain: Host): Host? {
-    val (result, bytes) = this.getHttpBytes("https://${apDomain.ascii}/.well-known/host-meta")
+    val (result, bytes) = this.getHttpBytes("${apDomain.schemeForLocalDev()}://${apDomain.ascii}/.well-known/host-meta")
     result ?: throw CancellationException()
     result.error?.notEmpty()?.let { error(it) }
     bytes ?: error("getApiHostFromWebFinger: missing response body.")
