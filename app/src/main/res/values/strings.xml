@@ -509,6 +509,7 @@
     <string name="error_notification_title">Server timeout</string>
     <string name="error_notification_summary">If on a destructed server, please remove its account from app.</string>
     <string name="open_hashtag_column">Open hashtag column</string>
+    <string name="open_hashtag_column_with_another_account">Open hashtag column with another account</string>
     <string name="quote_hashtag_of">Quote the hashtag \"%1$s\"</string>
     <string name="quote_all_hashtag_of">Quote all hashtags \"%1$s\"</string>
     <string name="parsing_response">Parsing response…</string>
@@ -923,6 +924,7 @@
     <string name="vote_button">Vote</string>
     <string name="end_of_polling_from">End of polling from %1$s</string>
     <string name="open_hashtag_from_account">Open hashtag(from %1$s) column</string>
+    <string name="open_hashtag_from_account_with_another_account">Open hashtag(from %1$s) column with another account</string>
     <string name="hashtag_from_acct">Hashtag from account</string>
     <string name="hashtag_of_from">Hashtag #%1$s from %2$s</string>
     <string name="boost_with_visibility">Boost with visibility</string>

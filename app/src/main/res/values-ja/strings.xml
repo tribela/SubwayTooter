@@ -516,6 +516,7 @@
     <string name="open_browser_of">\"%1$s\"をブラウザで開く</string>
     <string name="open_column_list">カラム一覧を開く</string>
     <string name="open_hashtag_column">ハッシュタグのカラムを開く</string>
+    <string name="open_hashtag_column_with_another_account">別のアカウントでハッシュタグのカラムを開く</string>
     <string name="open_in_account">%1$sから開く</string>
     <string name="open_in_browser">ブラウザで開く</string>
     <string name="open_in_pseudo_account">疑似アカウント %1$s で開く</string>
@@ -917,6 +918,7 @@
     <string name="vote_button">投票</string>
     <string name="end_of_polling_from">%1$sの調査の終了</string>
     <string name="open_hashtag_from_account">(%1$sからの)ハッシュタグのカラムを開く</string>
+    <string name="open_hashtag_from_account_with_another_account">別のアカウントで(%1$sからの)ハッシュタグのカラムを開く</string>
     <string name="hashtag_of_from">ハッシュタグ #%1$s (%2$sから)</string>
     <string name="boost_with_visibility">公開範囲を指定してブースト</string>
     <string name="confirm_private_boost_from">この投稿を %1$s からブーストしますか? 全てのフォロワーに公開されます</string>

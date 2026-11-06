@@ -12,7 +12,7 @@ import jp.juggler.subwaytooter.api.runApiTask
 import jp.juggler.subwaytooter.column.ColumnType
 import jp.juggler.subwaytooter.column.onTagFollowChanged
 import jp.juggler.subwaytooter.dialog.DlgConfirm.confirm
-import jp.juggler.subwaytooter.dialog.actionsDialog
+import jp.juggler.subwaytooter.dialog.groupedActionsDialog
 import jp.juggler.subwaytooter.dialog.pickAccount
 import jp.juggler.subwaytooter.table.SavedAccount
 import jp.juggler.subwaytooter.table.daoAcctColor
@@ -58,7 +58,7 @@ fun ActMain.tagDialog(
     val activity = this
     val tagWithSharp = "#$tagWithoutSharp"
     launchAndShowError {
-        actionsDialog(tagWithSharp) {
+        groupedActionsDialog(tagWithSharp) {
             // 閲覧中のアカウントでハッシュタグのカラムを開く
             action(getString(R.string.open_hashtag_column)) {
                 when (val current = accessInfo) {
@@ -86,14 +86,25 @@ fun ActMain.tagDialog(
                 }
             }
 
-            // 別のアカウントで開く場合はアカウントを選択する
-            action(getString(R.string.cross_account_actions)) {
-                tagTimelineFromAccount(
-                    pos = pos,
-                    host = host,
-                    tagWithoutSharp = tagWithoutSharp,
-                    acct = whoAcct,
-                )
+            // 別のアカウントで開く場合、開くカラムの種類を選ぶ
+            group(getString(R.string.cross_account_actions)) {
+                action(
+                    getString(R.string.open_hashtag_column_with_another_account)
+                ) {
+                    tagTimelineFromAccount(pos, host, tagWithoutSharp)
+                }
+                val who = whoAcct
+                if (who != null) {
+                    action(
+                        daoAcctColor.getStringWithNickname(
+                            activity,
+                            R.string.open_hashtag_from_account_with_another_account,
+                            who,
+                        )
+                    ) {
+                        tagTimelineFromAccount(pos, host, tagWithoutSharp, who)
+                    }
+                }
             }
 
             action(getString(R.string.open_in_browser)) {
