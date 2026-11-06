@@ -488,6 +488,8 @@
     <string name="error_notification_title">서버 시간제한 초과</string>
     <string name="error_notification_summary">파괴된 서버가 있으면 그 계정을 앱에서 삭제해 주세요.</string>
     <string name="open_hashtag_column">해시태그 칼럼 열기</string>
+    <string name="open_hashtag_column_with_another_account">다른 계정으로 해시태그 칼럼 열기</string>
+    <string name="open_hashtag_from_account_with_another_account">다른 계정으로(%1$s로부터의) 해시태그 칼럼 열기</string>
     <string name="quote_hashtag_of">해시태그 \"%1$s\" 인용</string>
     <string name="quote_all_hashtag_of">모든 해시태그 \"%1$s\" 인용</string>
     <string name="parsing_response">응답 해석 중…</string>
