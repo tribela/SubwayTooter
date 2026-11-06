@@ -201,39 +201,73 @@ suspend fun guessStatusIdFromPseudoAccount(
     )
 }
 
+private suspend fun ActMain.tryConversationRemote(
+    accessInfo: SavedAccount,
+    remoteStatusUrl: String,
+): Pair<TootApiResult?, EntityId?> {
+    var localStatusId: EntityId? = null
+
+    val result = runApiTask(
+        accessInfo,
+        progressPrefix = getString(R.string.progress_synchronize_toot)
+    ) { client ->
+        if (accessInfo.isPseudo) {
+            // 疑似アカウントではURLからIDを取得するのにHTMLと正規表現を使う
+            val pair =
+                guessStatusIdFromPseudoAccount(applicationContext, client, remoteStatusUrl)
+            localStatusId = pair.second
+            pair.first
+        } else {
+            // 実アカウントでは検索APIを使える
+            val (result, status) = client.syncStatus(accessInfo, remoteStatusUrl)
+            if (status != null) {
+                localStatusId = status.id
+                log.d("status id conversion $remoteStatusUrl=>${status.id}")
+            }
+            result
+        }
+    }
+
+    return Pair(result, localStatusId)
+}
+
 private fun ActMain.conversationRemote(
     pos: Int,
     accessInfo: SavedAccount,
     remoteStatusUrl: String,
 ) {
+    launchMain {
+        val (result, statusId) = tryConversationRemote(accessInfo, remoteStatusUrl)
+        when {
+            statusId != null -> conversationLocal(pos, accessInfo, statusId)
+            result != null -> showToast(true, result.error)
+        }
+    }
+}
+
+// URLで指定されたトゥートを閲覧中のアカウントで開く。
+// 開けなかった場合だけ、従来のアカウント選択にフォールバックする。
+fun ActMain.conversationFromUrl(
+    pos: Int,
+    accessInfo: SavedAccount,
+    urlArg: String,
+    statusIdOriginal: EntityId? = null,
+    hostAccess: Host? = null,
+    statusIdAccess: EntityId? = null,
+    isReference: Boolean = false,
+) {
+    if (accessInfo.isNA) {
+        conversationOtherInstance(pos, urlArg, statusIdOriginal, hostAccess, statusIdAccess, isReference)
+        return
+    }
 
     launchMain {
-        var localStatusId: EntityId? = null
-
-        runApiTask(
-            accessInfo,
-            progressPrefix = getString(R.string.progress_synchronize_toot)
-        ) { client ->
-            if (accessInfo.isPseudo) {
-                // 疑似アカウントではURLからIDを取得するのにHTMLと正規表現を使う
-                val pair =
-                    guessStatusIdFromPseudoAccount(applicationContext, client, remoteStatusUrl)
-                localStatusId = pair.second
-                pair.first
-            } else {
-                // 実アカウントでは検索APIを使える
-                val (result, status) = client.syncStatus(accessInfo, remoteStatusUrl)
-                if (status != null) {
-                    localStatusId = status.id
-                    log.d("status id conversion $remoteStatusUrl=>${status.id}")
-                }
-                result
-            }
-        }?.let { result ->
-            when (val statusId = localStatusId) {
-                null -> showToast(true, result.error)
-                else -> conversationLocal(pos, accessInfo, statusId)
-            }
+        // 参照カラムのURLは/referencesを除かないと検索できない
+        val url = if (isReference) """/references\z""".toRegex().replace(urlArg, "") else urlArg
+        val (_, statusId) = tryConversationRemote(accessInfo, url)
+        when (statusId) {
+            null -> conversationOtherInstance(pos, urlArg, statusIdOriginal, hostAccess, statusIdAccess, isReference)
+            else -> conversationLocal(pos, accessInfo, statusId, isReference = isReference)
         }
     }
 }

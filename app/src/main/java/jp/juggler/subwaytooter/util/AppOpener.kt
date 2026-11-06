@@ -10,6 +10,7 @@ import androidx.core.net.toUri
 import jp.juggler.subwaytooter.ActCallback
 import jp.juggler.subwaytooter.ActMain
 import jp.juggler.subwaytooter.R
+import jp.juggler.subwaytooter.action.conversationFromUrl
 import jp.juggler.subwaytooter.action.conversationLocal
 import jp.juggler.subwaytooter.action.conversationOtherInstance
 import jp.juggler.subwaytooter.action.tagDialog
@@ -242,12 +243,13 @@ fun openCustomTab(
                     accessInfo.isNA ||
                             !accessInfo.matchHost(statusInfo.host) ||
                             statusInfo.statusId == null ->
-                        activity.conversationOtherInstance(
-                            pos,
-                            statusInfo.url,
-                            statusInfo.statusId,
-                            statusInfo.host,
-                            statusInfo.statusId,
+                        activity.conversationFromUrl(
+                            pos = pos,
+                            accessInfo = accessInfo,
+                            urlArg = statusInfo.url,
+                            statusIdOriginal = statusInfo.statusId,
+                            hostAccess = statusInfo.host,
+                            statusIdAccess = statusInfo.statusId,
                             isReference = statusInfo.isReference,
                         )
 
