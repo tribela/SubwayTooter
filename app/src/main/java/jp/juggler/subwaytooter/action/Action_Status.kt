@@ -1,5 +1,6 @@
 package jp.juggler.subwaytooter.action
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AlertDialog
 import jp.juggler.subwaytooter.ActMain
@@ -9,8 +10,11 @@ import jp.juggler.subwaytooter.actmain.reloadAccountSetting
 import jp.juggler.subwaytooter.actmain.showColumnMatchAccount
 import jp.juggler.subwaytooter.api.*
 import jp.juggler.subwaytooter.api.entity.EntityId
+import jp.juggler.subwaytooter.api.entity.TootInstance
 import jp.juggler.subwaytooter.api.entity.TootScheduled
 import jp.juggler.subwaytooter.api.entity.TootStatus
+import jp.juggler.subwaytooter.api.entity.TootVisibility
+import jp.juggler.subwaytooter.api.entity.applyTranslation
 import jp.juggler.subwaytooter.column.*
 import jp.juggler.subwaytooter.dialog.DlgConfirm.confirm
 import jp.juggler.subwaytooter.dialog.actionsDialog
@@ -22,6 +26,7 @@ import jp.juggler.subwaytooter.table.daoSavedAccount
 import jp.juggler.subwaytooter.util.emptyCallback
 import jp.juggler.util.coroutine.launchAndShowError
 import jp.juggler.util.coroutine.launchMain
+import jp.juggler.util.data.JsonObject
 import jp.juggler.util.data.notEmpty
 import jp.juggler.util.log.showToast
 import jp.juggler.util.network.toFormRequestBody
@@ -608,4 +613,75 @@ fun ActMain.openStatusHistory(
     status: TootStatus,
 ) {
     addColumn(pos, accessInfo, ColumnType.STATUS_HISTORY, params = arrayOf(status.id, status.json))
+}
+
+// Mastodon 4.0+ の翻訳機能が使えるか
+fun canTranslateStatus(
+    context: Context,
+    accessInfo: SavedAccount,
+    status: TootStatus?,
+): Boolean {
+    status ?: return false
+    val target = status.reblog ?: status
+    if (accessInfo.isMisskey) return false
+    val ti = TootInstance.getCached(accessInfo) ?: return false
+    if (ti.translationEnabled != true) return false
+    if (target.content.isNullOrBlank()) return false
+    when (target.visibility) {
+        TootVisibility.Public,
+        TootVisibility.UnlistedHome,
+        -> Unit
+
+        else -> return false
+    }
+    // サーバは言語が不明な投稿や、翻訳先と同じ言語の投稿を翻訳できない
+    val source = target.language?.substringBefore('-')?.lowercase()
+        ?.takeIf { it.isNotBlank() && it != "und" }
+        ?: return false
+    val targetLanguage = context.resources.configuration.locales[0].language
+    if (source == targetLanguage) return false
+    return true
+}
+
+// Mastodon の翻訳APIでトゥートを翻訳する
+fun ActMain.translateStatus(
+    accessInfo: SavedAccount,
+    status: TootStatus?,
+    onUpdated: (() -> Unit)? = null,
+) {
+    status ?: return
+    val target = status.reblog ?: status
+    if (!canTranslateStatus(this, accessInfo, target)) return
+
+    // 既に翻訳済みなら再取得せずに表示する
+    if (target.translation != null) {
+        target.show_translation = true
+        onUpdated?.invoke()
+        return
+    }
+
+    launchMain {
+        val lang = resources.configuration.locales[0].language
+        val result = runApiTask(accessInfo) { client ->
+            val body = JsonObject().apply {
+                if (lang.isNotBlank()) put("lang", lang)
+            }.toPostRequestBuilder()
+            // サーバ側は I18n.locale と投稿言語を比較して翻訳可否を判定するため、
+            // 対象言語を Accept-Language でも伝える
+            if (lang.isNotBlank()) body.header("Accept-Language", lang)
+            client.request("/api/v1/statuses/${target.id}/translate", body)
+        }
+        if (result == null) return@launchMain
+        result.error?.let { error ->
+            showToast(true, error)
+            return@launchMain
+        }
+        val json = result.jsonObject
+        if (json == null) {
+            showToast(true, "translation failed")
+            return@launchMain
+        }
+        target.applyTranslation(TootParser(this@translateStatus, accessInfo), json)
+        onUpdated?.invoke()
+    }
 }

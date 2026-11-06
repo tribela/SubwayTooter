@@ -15,6 +15,7 @@ import jp.juggler.subwaytooter.ActMain
 import jp.juggler.subwaytooter.R
 import jp.juggler.subwaytooter.action.bookmarkFromAnotherAccount
 import jp.juggler.subwaytooter.action.boostFromAnotherAccount
+import jp.juggler.subwaytooter.action.canTranslateStatus
 import jp.juggler.subwaytooter.action.clickBookmark
 import jp.juggler.subwaytooter.action.clickBoost
 import jp.juggler.subwaytooter.action.clickConversation
@@ -29,6 +30,7 @@ import jp.juggler.subwaytooter.action.followFromAnotherAccount
 import jp.juggler.subwaytooter.action.quoteFromAnotherAccount
 import jp.juggler.subwaytooter.action.reactionFromAnotherAccount
 import jp.juggler.subwaytooter.action.replyFromAnotherAccount
+import jp.juggler.subwaytooter.action.translateStatus
 import jp.juggler.subwaytooter.actmain.nextPosition
 import jp.juggler.subwaytooter.api.entity.InstanceCapability
 import jp.juggler.subwaytooter.api.entity.TootInstance
@@ -107,6 +109,7 @@ class StatusButtons(
     private val btnBoost = holder.btnBoost
     private val btnFavourite = holder.btnFavourite
     private val btnBookmark = holder.btnBookmark
+    private val btnTranslate = holder.btnTranslate
     private val btnQuote = holder.btnQuote
     private val btnReaction = holder.btnReaction
     private val llFollow2 = holder.llFollow2
@@ -128,6 +131,7 @@ class StatusButtons(
             btnBoost,
             btnFavourite,
             btnBookmark,
+            btnTranslate,
             btnQuote,
             btnReaction,
             btnFollow2,
@@ -165,6 +169,7 @@ class StatusButtons(
         bindReactionButton(status)
         bindFavouriteButton(status)
         bindBookmarkButton(status)
+        bindTranslateButton(status)
         bindFollowButton(status)
 
         // 最後に呼び出す
@@ -211,6 +216,28 @@ class StatusButtons(
                 }
             },
             activity.getString(R.string.reply)
+        )
+    }
+
+    private fun bindTranslateButton(status: TootStatus) {
+        val target = status.reblog ?: status
+        val enabled = canTranslateStatus(activity, accessInfo, target)
+        btnTranslate.visibility = if (enabled) View.VISIBLE else View.GONE
+        if (!enabled) return
+        val active = target.show_translation
+        setIconDrawableId(
+            activity,
+            btnTranslate,
+            R.drawable.ic_translate,
+            color = if (active) {
+                activity.attrColor(R.attr.colorButtonAccentFavourite)
+            } else {
+                colorTextContent
+            },
+            alphaMultiplier = stylerBoostAlpha
+        )
+        btnTranslate.contentDescription = activity.getString(
+            if (active) R.string.show_original else R.string.translate
         )
     }
 
@@ -583,6 +610,20 @@ class StatusButtons(
                 btnBoost -> clickBoost(accessInfo, status, willToast = bSimpleList)
                 btnFavourite -> clickFavourite(accessInfo, status, willToast = bSimpleList)
                 btnBookmark -> clickBookmark(accessInfo, status, willToast = bSimpleList)
+                btnTranslate -> {
+                    val target = status.reblog ?: status
+                    if (target.translation != null) {
+                        target.show_translation = !target.show_translation
+                        itemViewHolder.showTranslation(status)
+                        bindTranslateButton(status)
+                    } else {
+                        translateStatus(accessInfo, status) {
+                            itemViewHolder.showTranslation(status)
+                            bindTranslateButton(status)
+                        }
+                    }
+                }
+
                 btnReaction -> clickReaction(accessInfo, column, status)
                 btnFollow2 -> clickFollow(pos, accessInfo, status.accountRef, relation)
 
@@ -686,6 +727,7 @@ class StatusButtonsViewHolder(
     lateinit var btnBoost: CountImageButton
     lateinit var btnFavourite: CountImageButton
     lateinit var btnBookmark: ImageButton
+    lateinit var btnTranslate: ImageButton
     lateinit var btnQuote: ImageButton
     lateinit var btnReaction: ImageButton
     lateinit var llFollow2: View
@@ -752,6 +794,19 @@ class StatusButtonsViewHolder(
             setPadding(paddingH, paddingV, paddingH, paddingV)
             scaleType = ImageView.ScaleType.FIT_CENTER
             minimumWidth = buttonHeight
+        }.lparams(wrapContent, buttonHeight) {
+            startMargin = marginBetween
+        }
+
+        btnTranslate = imageButton {
+            background = ContextCompat.getDrawable(
+                context,
+                R.drawable.btn_bg_transparent_round6dp
+            )
+            setPadding(paddingH, paddingV, paddingH, paddingV)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            minimumWidth = buttonHeight
+            visibility = View.GONE
         }.lparams(wrapContent, buttonHeight) {
             startMargin = marginBetween
         }

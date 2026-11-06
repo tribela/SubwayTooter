@@ -933,6 +933,11 @@
     <string name="show_translate_button">翻訳ボタンを表示する</string>
     <string name="translate">翻訳</string>
     <string name="translation_app">翻訳アプリ</string>
+    <string name="translation">翻訳</string>
+    <string name="translation_header">%2$s による %1$s からの翻訳</string>
+    <string name="translation_header_no_provider">%1$s からの翻訳</string>
+    <string name="show_original">原文を表示</string>
+    <string name="translation_failed">翻訳に失敗しました</string>
     <string name="missing_app_can_receive_action_send">ACTION_SENDを受け取れるアプリがありません。</string>
     <string name="select_destination_app_and_back">出力先のアプリを選択した後に設定画面まで戻ってください</string>
     <string name="custom_share_button_1">カスタム共有ボタン1</string>

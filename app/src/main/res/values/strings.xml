@@ -939,6 +939,11 @@
     <string name="show_translate_button">Show translate button</string>
     <string name="translate">Translate</string>
     <string name="translation_app">Translation app</string>
+    <string name="translation">Translated</string>
+    <string name="translation_header">Translated from %1$s by %2$s</string>
+    <string name="translation_header_no_provider">Translated from %1$s</string>
+    <string name="show_original">Show original</string>
+    <string name="translation_failed">Translation failed</string>
     <string name="missing_app_can_receive_action_send">Missing app that can receive ACTION_SEND.</string>
     <string name="select_destination_app_and_back">Select the destination app, then back to app setting.</string>
     <string name="custom_share_button_1">Custom share button 1</string>

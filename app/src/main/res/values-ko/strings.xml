@@ -879,4 +879,9 @@
     <string name="poll_expire_minutes">분</string>
     <string name="vote_1">1표</string>
     <string name="default_">기본</string>
+    <string name="translation">번역됨</string>
+    <string name="translation_header">%1$s에서 %2$s 번역</string>
+    <string name="translation_header_no_provider">%1$s에서 번역</string>
+    <string name="show_original">원문 보기</string>
+    <string name="translation_failed">번역에 실패했습니다</string>
 </resources>

@@ -210,6 +210,10 @@ class TootStatus(
     var conversationSummary: TootConversationSummary? = null
     var conversation_main: Boolean = false
 
+    // Mastodon 4.0+ の翻訳結果
+    var translation: TootTranslation? = null
+    var show_translation: Boolean = false
+
     // 投稿元タンスのホスト名
     val originalApDomain: Host
         get() = account.apDomain
@@ -1772,4 +1776,32 @@ class TootStatus(
             }
         }
     }
+}
+
+fun TootStatus.applyTranslation(parser: TootParser, src: JsonObject) {
+    val content = src.string("content") ?: return
+    val options = DecodeOptions(
+        parser.context,
+        parser.linkHelper,
+        short = true,
+        decodeEmoji = true,
+        emojiMapCustom = custom_emojis,
+        emojiMapProfile = profile_emojis,
+        attachmentList = media_attachments,
+        highlightTrie = parser.highlightTrie,
+        mentions = mentions,
+        authorDomain = account,
+        emojiSizeMode = parser.emojiSizeMode,
+    )
+    val translatedSpoiler = src.string("spoiler_text")
+        ?.takeIf { it.isNotBlank() }
+        ?.let { options.decodeHTML(it) }
+    translation = TootTranslation(
+        decoded_content = options.decodeHTML(content),
+        decoded_spoiler_text = translatedSpoiler,
+        language = src.string("language")?.notEmpty(),
+        detected_source_language = src.string("detected_source_language")?.notEmpty(),
+        provider = src.string("provider")?.notEmpty(),
+    )
+    show_translation = true
 }
