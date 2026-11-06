@@ -90,31 +90,28 @@ abstract class ColumnTask(
     ): TootApiResult? {
         // announcements is shown only mastodon home timeline, not pseudo.
         if (isMastodon && !isPseudo) {
-            // force (initial loading) always reload announcements
-            // other (refresh,gap) may reload announcements if last load is too old
-            if (force || SystemClock.elapsedRealtime() - column.announcementUpdated >= 15 * 60000L) {
-                if (force) {
-                    log.d("announcements reset")
-                    column.announcements = null
-                    column.announcementUpdated = SystemClock.elapsedRealtime()
-                }
-                val (instance, _) = TootInstance.get(client)
-                if (instance?.versionGE(TootInstance.VERSION_3_1_0_rc1) == true) {
-                    val result = client.request("/api/v1/announcements")
-                        ?: return null // cancelled.
-                    when (result.response?.code ?: 0) {
-                        // just skip load announcements for 4xx error if server does not support announcements.
-                        in 400 until 500 -> Unit
+            // HTTPヘッダを尊重するため、アプリ側では取得間隔を空けない
+            if (force) {
+                log.d("announcements reset")
+                column.announcements = null
+                column.announcementUpdated = SystemClock.elapsedRealtime()
+            }
+            val (instance, _) = TootInstance.get(client)
+            if (instance?.versionGE(TootInstance.VERSION_3_1_0_rc1) == true) {
+                val result = client.request("/api/v1/announcements")
+                    ?: return null // cancelled.
+                when (result.response?.code ?: 0) {
+                    // just skip load announcements for 4xx error if server does not support announcements.
+                    in 400 until 500 -> Unit
 
-                        else -> {
-                            column.announcements =
-                                parseList(result.jsonArray) { tootAnnouncement(parser, it) }
-                                    .notEmpty()
-                            column.announcementUpdated = SystemClock.elapsedRealtime()
-                            client.publishApiProgress("announcements loaded")
-                            // other errors such as network or server fails will stop column loading.
-                            return result
-                        }
+                    else -> {
+                        column.announcements =
+                            parseList(result.jsonArray) { tootAnnouncement(parser, it) }
+                                .notEmpty()
+                        column.announcementUpdated = SystemClock.elapsedRealtime()
+                        client.publishApiProgress("announcements loaded")
+                        // other errors such as network or server fails will stop column loading.
+                        return result
                     }
                 }
             }

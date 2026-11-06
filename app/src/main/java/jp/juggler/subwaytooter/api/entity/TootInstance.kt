@@ -582,13 +582,7 @@ class TootInstance(parser: TootParser, src: JsonObject) {
                     suspendCoroutine { cont ->
                         QueuedRequest(cont, allowPixelfed) { cached ->
 
-                            // may use cached item.
-                            if (!forceUpdate && forceAccessToken == null && cached != null) {
-                                val now = SystemClock.elapsedRealtime()
-                                if (now - cached.time_parse <= EXPIRE) {
-                                    return@QueuedRequest Pair(cached, TootApiResult())
-                                }
-                            }
+                            // キャッシュの可否はHTTPヘッダに任せる
 
                             val tmpInstance = client.apiHost
                             val tmpAccount = client.account

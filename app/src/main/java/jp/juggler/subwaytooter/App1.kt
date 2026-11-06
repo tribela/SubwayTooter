@@ -293,8 +293,10 @@ class App1 : Application() {
 
                 val apiReadTimeout = max(3, PrefS.spApiReadTimeout.toInt())
 
-                // API用のHTTP設定はキャッシュを使わない
+                // HTTPヘッダ(Cache-Control/ETag/Vary)に従うAPIキャッシュ
+                val apiCache = Cache(File(appContext.cacheDir, "http_api"), 20_000_000L)
                 ok_http_client = appContext.prepareOkHttp(apiReadTimeout, apiReadTimeout)
+                    .cache(apiCache)
                     .build()
 
                 // ディスクキャッシュ

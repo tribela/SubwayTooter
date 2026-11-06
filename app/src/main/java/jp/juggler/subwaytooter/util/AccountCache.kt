@@ -31,13 +31,7 @@ object AccountCache {
             cacheMutex.withLock {
                 val key = src.acct.ascii
                 try {
-                    val cached = map[key]
-                    if (cached != null) {
-                        val now = SystemClock.elapsedRealtime()
-                        val expire =
-                            if (cached.result != null) CACHE_EXPIRE_SUCCESS else CACHE_EXPIRE_ERROR
-                        if (cached.timeCached >= now - expire) return@withLock cached.result
-                    }
+                    // キャッシュの可否はHTTPヘッダに任せる
                     val newAccount = context.runApiTask2(
                         src,
                         progressStyle = ApiTask.PROGRESS_NONE,

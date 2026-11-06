@@ -703,6 +703,14 @@ suspend fun TootApiClient.syncAccountByAcct(
             }
         Pair(result, ar)
     } else {
+        // 軽量なアカウント解決。古いサーバでは404なのでsearchにフォールバックする
+        val lookupResult = request(
+            "/api/v1/accounts/lookup?acct=${acct.ascii.encodePercent()}"
+        ) ?: return Pair(null, null)
+        if (lookupResult.error == null) {
+            val ar = tootAccountRefOrNull(parser, parser.account(lookupResult.jsonObject))
+            if (ar != null) return Pair(lookupResult, ar)
+        }
         val (apiResult, searchResult) = requestMastodonSearch(
             parser,
             q = acct.ascii,
