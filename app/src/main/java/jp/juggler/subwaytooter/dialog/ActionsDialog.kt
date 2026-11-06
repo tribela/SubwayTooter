@@ -1,18 +1,10 @@
 package jp.juggler.subwaytooter.dialog
 
 import android.content.Context
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.TextView
-import jp.juggler.subwaytooter.R
-import jp.juggler.subwaytooter.pref.PrefB
 import jp.juggler.util.coroutine.cancellationException
 import jp.juggler.util.data.notEmpty
-import jp.juggler.util.ui.attrColor
-import jp.juggler.util.ui.createColoredDrawable
 import jp.juggler.util.ui.dismissSafe
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.*
@@ -24,122 +16,21 @@ class ActionsDialogInitializer(
 ) {
     class Action(val caption: CharSequence, val action: suspend () -> Unit)
 
-    private sealed class Item {
-        class Single(val action: Action) : Item()
-        class Group(val caption: CharSequence, val actions: ArrayList<Action>) : Item()
-    }
-
-    private val items = ArrayList<Item>()
+    val list = ArrayList<Action>()
 
     fun action(caption: CharSequence, action: suspend () -> Unit) {
-        items.add(Item.Single(Action(caption, action)))
+        list.add(Action(caption, action))
     }
-
-    inner class GroupScope internal constructor(
-        private val actions: MutableList<Action>,
-    ) {
-        fun action(caption: CharSequence, action: suspend () -> Unit) {
-            actions.add(Action(caption, action))
-        }
-    }
-
-    fun group(caption: CharSequence, init: GroupScope.() -> Unit) {
-        val actions = ArrayList<Action>()
-        GroupScope(actions).init()
-        if (actions.isNotEmpty()) items.add(Item.Group(caption, actions))
-    }
-
-    private class Row(
-        val action: Action?,
-        val group: Item.Group?,
-        val indented: Boolean,
-    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun showSuspend(context: Context): Action =
         suspendCancellableCoroutine { cont ->
-            val expanded = HashSet<Item.Group>()
-            val alwaysExpand = PrefB.bpAlwaysExpandContextMenuItems.value
-            if (alwaysExpand) expanded.addAll(items.filterIsInstance<Item.Group>())
-
-            fun flatten(): ArrayList<Row> {
-                val rows = ArrayList<Row>()
-                for (item in items) {
-                    when (item) {
-                        is Item.Single -> rows.add(Row(item.action, null, false))
-                        is Item.Group -> {
-                            rows.add(Row(null, item, false))
-                            if (item in expanded) {
-                                for (action in item.actions) {
-                                    rows.add(Row(action, null, true))
-                                }
-                            }
-                        }
-                    }
-                }
-                return rows
-            }
-
-            val adapter = object : BaseAdapter() {
-                private var rows = flatten()
-
-                fun refresh() {
-                    rows = flatten()
-                    notifyDataSetChanged()
-                }
-
-                override fun getCount() = rows.size
-                override fun getItem(position: Int): Any = rows[position]
-                override fun getItemId(position: Int) = position.toLong()
-
-                override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                    val row = rows[position]
-                    val tv = convertView as? TextView ?: (
-                        LayoutInflater.from(context)
-                            .inflate(android.R.layout.select_dialog_item, parent, false) as TextView
-                        )
-                    val basePaddingStart = (tv.tag as? Int) ?: tv.paddingStart.also { tv.tag = it }
-                    tv.text = row.action?.caption ?: row.group?.caption
-                    tv.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, null, null)
-                    tv.compoundDrawablePadding = 0
-                    tv.setPaddingRelative(
-                        basePaddingStart + if (row.indented) dp(context, 24f) else 0,
-                        tv.paddingTop,
-                        tv.paddingEnd,
-                        tv.paddingBottom
-                    )
-                    if (row.group != null) {
-                        val iconId = when (row.group in expanded) {
-                            true -> R.drawable.ic_arrow_drop_up
-                            else -> R.drawable.ic_arrow_drop_down
-                        }
-                        val color = context.attrColor(R.attr.colorTimeSmall)
-                        tv.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                            createColoredDrawable(context, iconId, color, 1f),
-                            null,
-                            null,
-                            null
-                        )
-                        tv.compoundDrawablePadding = dp(context, 8f)
-                    }
-                    return tv
-                }
-            }
-
             val dialog = android.app.AlertDialog.Builder(context).apply {
                 title?.notEmpty()?.let { setTitle(it) }
                 setNegativeButton(android.R.string.cancel, null)
-                setAdapter(adapter) { d, position ->
-                    val row = adapter.getItem(position) as Row
-                    if (row.group != null) {
-                        if (!alwaysExpand) {
-                            if (!expanded.add(row.group)) expanded.remove(row.group)
-                            adapter.refresh()
-                        }
-                    } else {
-                        if (cont.isActive) row.action?.let { cont.resume(it) { _, _, _ -> } }
-                        d.dismissSafe()
-                    }
+                setItems(list.map { it.caption }.toTypedArray()) { d, i ->
+                    if (cont.isActive) cont.resume(list[i]) {_,_,_->}
+                    d.dismissSafe()
                 }
                 setOnDismissListener {
                     if (cont.isActive) cont.resumeWithException(cancellationException())
@@ -149,9 +40,6 @@ class ActionsDialogInitializer(
             dialog.show()
         }
 }
-
-private fun dp(context: Context, value: Float): Int =
-    (value * context.resources.displayMetrics.density + 0.5f).toInt()
 
 suspend fun Context.actionsDialog(
     title: String? = null,
