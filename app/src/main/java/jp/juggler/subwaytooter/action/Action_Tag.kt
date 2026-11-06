@@ -12,7 +12,7 @@ import jp.juggler.subwaytooter.api.runApiTask
 import jp.juggler.subwaytooter.column.ColumnType
 import jp.juggler.subwaytooter.column.onTagFollowChanged
 import jp.juggler.subwaytooter.dialog.DlgConfirm.confirm
-import jp.juggler.subwaytooter.dialog.actionsDialog
+import jp.juggler.subwaytooter.dialog.groupedActionsDialog
 import jp.juggler.subwaytooter.dialog.pickAccount
 import jp.juggler.subwaytooter.table.SavedAccount
 import jp.juggler.subwaytooter.table.daoAcctColor
@@ -58,7 +58,7 @@ fun ActMain.tagDialog(
     val activity = this
     val tagWithSharp = "#$tagWithoutSharp"
     launchAndShowError {
-        actionsDialog(tagWithSharp) {
+        groupedActionsDialog(tagWithSharp) {
             // 閲覧中のアカウントでハッシュタグのカラムを開く
             action(getString(R.string.open_hashtag_column)) {
                 when (val current = accessInfo) {
