@@ -23,6 +23,8 @@ import kotlin.coroutines.resumeWithException
 @Suppress("MatchingDeclarationName")
 class ActionsDialogInitializer(
     val title: CharSequence? = null,
+    // タグメニューなど、詰めて表示したい場合に真
+    val compact: Boolean = false,
 ) {
     class Action(val caption: CharSequence, val action: suspend () -> Unit)
 
@@ -132,9 +134,21 @@ class ActionsDialogInitializer(
                     }
 
                     val tv = convertView as? TextView ?: (
-                        inflater.inflate(android.R.layout.select_dialog_item, parent, false)
-                            as TextView
+                        inflater.inflate(
+                            when {
+                                compact -> R.layout.dlg_compact_action_row
+                                else -> android.R.layout.select_dialog_item
+                            },
+                            parent,
+                            false
+                        ) as TextView
                         )
+                    if (compact) {
+                        tv.layoutParams = AbsListView.LayoutParams(
+                            AbsListView.LayoutParams.MATCH_PARENT,
+                            AbsListView.LayoutParams.WRAP_CONTENT
+                        )
+                    }
                     val basePaddingStart =
                         (tv.tag as? Int) ?: tv.paddingStart.also { tv.tag = it }
                     tv.text = row.action?.caption
@@ -178,9 +192,10 @@ class ActionsDialogInitializer(
 
 suspend fun Context.actionsDialog(
     title: String? = null,
+    compact: Boolean = false,
     init: suspend ActionsDialogInitializer.() -> Unit,
 ) {
-    ActionsDialogInitializer(title)
+    ActionsDialogInitializer(title, compact)
         .apply { init() }
         .showSuspend(this)
         .action.invoke()

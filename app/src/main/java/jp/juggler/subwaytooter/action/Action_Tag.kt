@@ -58,7 +58,7 @@ fun ActMain.tagDialog(
     val activity = this
     val tagWithSharp = "#$tagWithoutSharp"
     launchAndShowError {
-        actionsDialog(tagWithSharp) {
+        actionsDialog(tagWithSharp, compact = true) {
             // 閲覧中のアカウントでハッシュタグのカラムを開く
             action(getString(R.string.open_hashtag_column)) {
                 when (val current = accessInfo) {
