@@ -207,44 +207,70 @@ fun ActMain.timelineAroundByStatusAnotherAccount(
     }
 }
 
+// 指定投稿付近のタイムラインを閲覧中のアカウントで開く。
+// 閲覧中のアカウントで扱えない場合だけ、従来のアカウント選択にフォールバックする。
+private fun ActMain.timelineAroundByStatusCurrentAccount(
+    accessInfo: SavedAccount,
+    pos: Int,
+    host: Host?,
+    status: TootStatus?,
+    type: ColumnType,
+    allowPseudo: Boolean = true,
+) {
+    when {
+        status == null -> return
+        accessInfo.isNA ||
+                accessInfo.isMisskey ||
+                (!allowPseudo && accessInfo.isPseudo) ->
+            timelineAroundByStatusAnotherAccount(
+                accessInfo,
+                pos,
+                host,
+                status,
+                type,
+                allowPseudo
+            )
+
+        else -> timelineAround(accessInfo, pos, status.id, type)
+    }
+}
+
 fun ActMain.clickAroundAccountTL(
     accessInfo: SavedAccount,
     pos: Int,
     who: TootAccount,
     status: TootStatus?,
-) =
-    timelineAroundByStatusAnotherAccount(
-        accessInfo,
-        pos,
-        who.apiHost,
-        status,
-        ColumnType.ACCOUNT_AROUND, allowPseudo = false
-    )
+) = timelineAroundByStatusCurrentAccount(
+    accessInfo,
+    pos,
+    who.apiHost,
+    status,
+    ColumnType.ACCOUNT_AROUND,
+    allowPseudo = false,
+)
 
 fun ActMain.clickAroundLTL(
     accessInfo: SavedAccount,
     pos: Int,
     who: TootAccount,
     status: TootStatus?,
-) =
-    timelineAroundByStatusAnotherAccount(
-        accessInfo,
-        pos,
-        who.apiHost,
-        status,
-        ColumnType.LOCAL_AROUND
-    )
+) = timelineAroundByStatusCurrentAccount(
+    accessInfo,
+    pos,
+    who.apiHost,
+    status,
+    ColumnType.LOCAL_AROUND,
+)
 
 fun ActMain.clickAroundFTL(
     accessInfo: SavedAccount,
     pos: Int,
     who: TootAccount,
     status: TootStatus?,
-) =
-    timelineAroundByStatusAnotherAccount(
-        accessInfo,
-        pos,
-        who.apiHost,
-        status,
-        ColumnType.FEDERATED_AROUND
-    )
+) = timelineAroundByStatusCurrentAccount(
+    accessInfo,
+    pos,
+    who.apiHost,
+    status,
+    ColumnType.FEDERATED_AROUND,
+)

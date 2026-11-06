@@ -103,6 +103,9 @@ internal class DlgContextMenu(
             views.btnQuoteAnotherAccount,
             views.btnQuoteTootBT,
             views.btnSendMessage,
+            views.btnAroundAccountTL,
+            views.btnAroundLTL,
+            views.btnAroundFTL,
         ).forEach { it.setOnLongClickListener(this) }
 
         val accountList = daoSavedAccount.loadAccountList()
@@ -670,11 +673,33 @@ internal class DlgContextMenu(
     override fun onLongClick(v: View): Boolean {
         val whoRef = this.whoRef
         val who = whoRef?.get()
+        val status = this.status
 
         with(activity) {
             val pos = nextPosition(column)
 
             when (v.id) {
+                // 長押しでは別のアカウントを選んで開く
+                R.id.btnAroundAccountTL,
+                R.id.btnAroundLTL,
+                R.id.btnAroundFTL -> {
+                    val targetWho = who ?: return false
+                    val targetStatus = status ?: return false
+                    dialog.dismissSafe()
+                    timelineAroundByStatusAnotherAccount(
+                        accessInfo,
+                        pos,
+                        targetWho.apiHost,
+                        targetStatus,
+                        when (v.id) {
+                            R.id.btnAroundAccountTL -> ColumnType.ACCOUNT_AROUND
+                            R.id.btnAroundLTL -> ColumnType.LOCAL_AROUND
+                            else -> ColumnType.FEDERATED_AROUND
+                        },
+                        allowPseudo = v.id != R.id.btnAroundAccountTL,
+                    )
+                }
+
                 // events don't close dialog
                 R.id.btnMute -> userMuteFromAnotherAccount(who, accessInfo)
                 R.id.btnBlock -> userBlockFromAnotherAccount(who, accessInfo)
