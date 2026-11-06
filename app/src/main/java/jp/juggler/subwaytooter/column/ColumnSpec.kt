@@ -1,8 +1,10 @@
 package jp.juggler.subwaytooter.column
 
+import jp.juggler.subwaytooter.api.TootParser
 import jp.juggler.subwaytooter.api.entity.Acct
 import jp.juggler.subwaytooter.api.entity.EntityId
 import jp.juggler.subwaytooter.api.entity.Host
+import jp.juggler.subwaytooter.api.entity.TootAccountRef.Companion.tootAccountRef
 import jp.juggler.subwaytooter.table.SavedAccount
 import jp.juggler.util.data.JsonObject
 import jp.juggler.util.log.LogCategory
@@ -41,6 +43,9 @@ object ColumnSpec {
             else -> error("getParamJsonObject [$idx] bad type. $o")
         }
 
+    private fun getParamJsonObjectOrNull(params: Array<out Any>, idx: Int): JsonObject? =
+        if (idx >= params.size) null else params[idx] as? JsonObject
+
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T> getParamAtNullable(params: Array<out Any>, idx: Int): T? {
         if (idx >= params.size) return null
@@ -58,7 +63,22 @@ object ColumnSpec {
                 ColumnType.LOCAL_AROUND,
                 ColumnType.FEDERATED_AROUND,
                 ColumnType.ACCOUNT_AROUND,
-                -> statusId = getParamEntityId(params, 0)
+                -> {
+                    statusId = getParamEntityId(params, 0)
+                    if (type == ColumnType.CONVERSATION ||
+                        type == ColumnType.CONVERSATION_WITH_REFERENCE
+                    ) {
+                        // 既知の投稿を先に表示し、会話の取得結果で置き換える
+                        getParamJsonObjectOrNull(params, 1)?.let { json ->
+                            val parser = TootParser(context, accessInfo)
+                            parser.status(json)?.also {
+                                it.conversation_main = true
+                                listData.addAll(listOf(it))
+                                bHasSeed = true
+                            }
+                        }
+                    }
+                }
 
                 ColumnType.STATUS_HISTORY -> {
                     statusId = getParamEntityId(params, 0)
@@ -67,7 +87,19 @@ object ColumnSpec {
 
                 ColumnType.PROFILE, ColumnType.LIST_TL, ColumnType.LIST_MEMBER,
                 ColumnType.MISSKEY_ANTENNA_TL,
-                -> profileId = getParamEntityId(params, 0)
+                -> {
+                    profileId = getParamEntityId(params, 0)
+                    if (type == ColumnType.PROFILE) {
+                        // 既知のアカウント情報でヘッダを先に表示する
+                        getParamJsonObjectOrNull(params, 1)?.let { json ->
+                            val parser = TootParser(context, accessInfo)
+                            parser.account(json)?.let {
+                                whoAccount = tootAccountRef(parser, it)
+                                bHasSeed = true
+                            }
+                        }
+                    }
+                }
 
                 ColumnType.HASHTAG ->
                     hashtag = getParamString(params, 0)

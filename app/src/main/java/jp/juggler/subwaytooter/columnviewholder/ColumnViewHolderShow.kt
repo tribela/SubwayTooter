@@ -113,6 +113,14 @@ internal fun ColumnViewHolder.showContent(
     }
 
     if (column.bInitialLoading) {
+        if (column.bHasSeed) {
+            // 既知のデータを先に表示し、ローディングはスピナーだけにする
+            llLoading.visibility = View.GONE
+            refreshLayout.visibility = View.VISIBLE
+            refreshLayout.isRefreshing = true
+            statusAdapter?.findHeaderViewHolder(listView)?.bindData(column)
+            return
+        }
         var message: String? = column.taskProgress
         if (message == null) message = "loading?"
         showError(message)

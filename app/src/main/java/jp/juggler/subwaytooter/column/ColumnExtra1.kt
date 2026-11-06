@@ -297,7 +297,8 @@ fun Column.startLoading(reason: ColumnLoadReason) {
     pagingType = ColumnPagingType.Default
 
     duplicateMap.clear()
-    listData.clear()
+    // 既知のデータを先に表示している場合は、取得完了まで残す
+    if (!bHasSeed) listData.clear()
     fireShowContent(reason = "loading start", reset = true)
 
     @SuppressLint("StaticFieldLeak")

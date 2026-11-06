@@ -19,6 +19,7 @@ import jp.juggler.subwaytooter.util.matchHost
 import jp.juggler.subwaytooter.util.openCustomTab
 import jp.juggler.util.coroutine.launchAndShowError
 import jp.juggler.util.coroutine.launchMain
+import jp.juggler.util.data.JsonObject
 import jp.juggler.util.data.notEmpty
 import jp.juggler.util.log.LogCategory
 import jp.juggler.util.log.showToast
@@ -145,7 +146,7 @@ fun ActMain.conversation(
         conversationOtherInstance(pos, status)
     } else {
 
-        conversationLocal(pos, accessInfo, status.id)
+        conversationLocal(pos, accessInfo, status.id, statusJson = status.json)
     }
 }
 
@@ -155,6 +156,7 @@ fun ActMain.conversationLocal(
     accessInfo: SavedAccount,
     statusId: EntityId,
     isReference: Boolean = false,
+    statusJson: JsonObject? = null,
 ) = addColumn(
     pos,
     accessInfo,
@@ -164,7 +166,7 @@ fun ActMain.conversationLocal(
         else ->
             ColumnType.CONVERSATION
     },
-    params = arrayOf(statusId),
+    params = if (statusJson != null) arrayOf(statusId, statusJson) else arrayOf(statusId),
 )
 
 private val reDetailedStatusTime =

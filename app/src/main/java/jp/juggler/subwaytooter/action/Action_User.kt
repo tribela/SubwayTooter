@@ -571,7 +571,7 @@ private fun ActMain.userProfileFromUrlOrAcct(
                     openCustomTab(whoUrl)
                 }
 
-                else -> addColumn(pos, accessInfo, ColumnType.PROFILE, params = arrayOf(who.id))
+                else -> addColumn(pos, accessInfo, ColumnType.PROFILE, params = arrayOf(who.id, who.json))
             }
         }
     }
@@ -595,7 +595,7 @@ fun ActMain.userProfileFromAnotherAccount(
             accountListArg = accountListNonPseudo(who.apDomain)
         )?.let { ai ->
             if (ai.matchHost(accessInfo)) {
-                addColumn(pos, ai, ColumnType.PROFILE, params = arrayOf(who.id))
+                addColumn(pos, ai, ColumnType.PROFILE, params = arrayOf(who.id, who.json))
             } else {
                 userProfileFromUrlOrAcct(pos, ai, accessInfo.getFullAcct(who), who.url)
             }
@@ -611,7 +611,7 @@ fun ActMain.userProfileLocal(
 ) {
     when {
         accessInfo.isNA -> userProfileFromAnotherAccount(pos, accessInfo, who)
-        else -> addColumn(pos, accessInfo, ColumnType.PROFILE, params = arrayOf(who.id))
+        else -> addColumn(pos, accessInfo, ColumnType.PROFILE, params = arrayOf(who.id, who.json))
     }
 }
 

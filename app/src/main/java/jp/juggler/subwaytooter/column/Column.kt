@@ -238,6 +238,9 @@ class Column(
     @Volatile
     internal var bInitialLoading: Boolean = false
 
+    // 列作成時に既知のデータを表示済みか
+    internal var bHasSeed: Boolean = false
+
     @Volatile
     internal var bRefreshLoading: Boolean = false
 
