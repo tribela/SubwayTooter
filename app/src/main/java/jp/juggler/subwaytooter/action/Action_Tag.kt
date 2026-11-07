@@ -27,6 +27,7 @@ import jp.juggler.util.log.LogCategory
 import jp.juggler.util.log.showToast
 import jp.juggler.util.network.toFormRequestBody
 import jp.juggler.util.network.toPost
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withContext
 
 private val log = LogCategory("Action_Tag")
@@ -129,25 +130,39 @@ fun ActMain.tagDialog(
 
             val ti = TootInstance.getCached(accessInfo)
             if (ti != null && accessInfo?.isMisskey == false) {
-                var tag = tagInfo
-                if (tag == null) {
-                    val result = runApiTask(accessInfo) { client ->
-                        client.request("/api/v1/tags/${tagWithoutSharp.encodePercent()}")
-                    }
-                    if (result != null) {
-                        TootParser(activity, accessInfo)
-                            .tag(result.jsonObject)
-                            ?.let { tag = it }
-                    }
-                }
+                fun toggleCaption(toggle: Boolean) = getString(
+                    when (toggle) {
+                        true -> R.string.follow_hashtag_of
+                        else -> R.string.unfollow_hashtag_of
+                    },
+                    tagWithSharp,
+                )
 
-                val toggle = !(tag?.following ?: false)
-                val toggleCaption = when (toggle) {
-                    true -> R.string.follow_hashtag_of
-                    else -> R.string.unfollow_hashtag_of
-                }
-                action(getString(toggleCaption, tagWithSharp)) {
-                    followHashTag(accessInfo, tagWithoutSharp, toggle)
+                val knownTag = tagInfo
+                if (knownTag != null) {
+                    val toggle = knownTag.following != true
+                    action(toggleCaption(toggle)) {
+                        followHashTag(accessInfo, tagWithoutSharp, toggle)
+                    }
+                } else {
+                    // タグ情報の取得でメニューが遅れないよう、先に開いてから行の表題を更新する
+                    val tagPath = "/api/v1/tags/${tagWithoutSharp.encodePercent()}"
+                    val tagResult = CompletableDeferred<TootTag?>()
+                    val row = action(getString(R.string.request_api, "GET", tagPath)) {
+                        val tag = tagResult.await()
+                        followHashTag(accessInfo, tagWithoutSharp, !(tag?.following ?: false))
+                    }
+                    launchMain {
+                        val result = runApiTask(accessInfo) { client ->
+                            client.request(tagPath)
+                        }
+                        val tag = result?.let { r ->
+                            TootParser(activity, accessInfo).tag(r.jsonObject)
+                        }
+                        tagResult.complete(tag)
+                        row.caption = toggleCaption(!(tag?.following ?: false))
+                        refresh()
+                    }
                 }
             }
         }

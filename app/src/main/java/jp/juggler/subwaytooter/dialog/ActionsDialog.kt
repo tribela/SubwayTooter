@@ -26,7 +26,7 @@ class ActionsDialogInitializer(
     // タグメニューなど、詰めて表示したい場合に真
     val compact: Boolean = false,
 ) {
-    class Action(val caption: CharSequence, val action: suspend () -> Unit)
+    class Action(var caption: CharSequence, val action: suspend () -> Unit)
 
     private sealed class Item {
         class Single(val action: Action) : Item()
@@ -35,8 +35,17 @@ class ActionsDialogInitializer(
 
     private val items = ArrayList<Item>()
 
-    fun action(caption: CharSequence, action: suspend () -> Unit) {
-        items.add(Item.Single(Action(caption, action)))
+    // 表示後に表題を差し替えられるようにする (タグ情報の取得待ちなど)
+    private var onChange: (() -> Unit)? = null
+
+    fun refresh() {
+        onChange?.invoke()
+    }
+
+    fun action(caption: CharSequence, action: suspend () -> Unit): Action {
+        val item = Action(caption, action)
+        items.add(Item.Single(item))
+        return item
     }
 
     inner class GroupScope internal constructor(
@@ -167,12 +176,14 @@ class ActionsDialogInitializer(
                 setNegativeButton(android.R.string.cancel, null)
                 setAdapter(adapter) { _, _ -> }
                 setOnDismissListener {
+                    onChange = null
                     if (cont.isActive) cont.resumeWithException(cancellationException())
                 }
             }.create()
 
             cont.invokeOnCancellation { dialog.dismissSafe() }
             dialog.show()
+            onChange = { dialog.window?.decorView?.post { adapter.refresh() } }
 
             dialog.listView?.setOnItemClickListener { _, _, position, _ ->
                 val row = adapter.getItem(position) as Row
