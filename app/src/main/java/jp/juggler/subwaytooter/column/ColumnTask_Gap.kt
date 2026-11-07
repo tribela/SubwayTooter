@@ -9,6 +9,7 @@ import jp.juggler.subwaytooter.columnviewholder.setListItemTop
 import jp.juggler.subwaytooter.notification.injectData
 import jp.juggler.subwaytooter.pref.PrefI
 import jp.juggler.util.*
+import jp.juggler.util.coroutine.launchMain
 import jp.juggler.util.coroutine.runOnMainLooper
 import jp.juggler.util.coroutine.runOnMainLooperDelayed
 import jp.juggler.util.data.JsonArray
@@ -63,15 +64,19 @@ class ColumnTask_Gap(
         } catch (ex: Throwable) {
             return TootApiResult(ex.withCaption("gap loading failed."))
         } finally {
-            try {
-                column.updateRelation(client, listTmp, column.whoAccount, parser)
-            } catch (ex: Throwable) {
-                log.e(ex, "updateRelation failed.")
-            }
-
+            val tmpList = listTmp
             ctClosed.set(true)
             runOnMainLooperDelayed(333L) {
                 if (!isCancelled) column.fireShowColumnStatus()
+            }
+            // 関係情報の取得で本文の表示を待たせない
+            launchMain {
+                try {
+                    column.updateRelation(client, tmpList, column.whoAccount, parser)
+                    column.fireShowContent(reason = "relation updated", changeList = ArrayList())
+                } catch (ex: Throwable) {
+                    log.e(ex, "updateRelation failed.")
+                }
             }
         }
     }

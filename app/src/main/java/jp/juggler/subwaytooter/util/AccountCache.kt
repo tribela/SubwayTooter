@@ -1,7 +1,6 @@
 package jp.juggler.subwaytooter.util
 
 import android.content.Context
-import android.os.SystemClock
 import jp.juggler.subwaytooter.api.ApiTask
 import jp.juggler.subwaytooter.api.TootParser
 import jp.juggler.subwaytooter.api.auth.authRepo
@@ -18,18 +17,12 @@ import kotlinx.coroutines.withContext
 object AccountCache {
     private val log = LogCategory("AccountCache")
 
-    private class CacheItem(val timeCached: Long, val result: TootAccount?)
-
-    private val cacheMutex = Mutex()
-    private val map = HashMap<String, CacheItem>()
-    private const val CACHE_EXPIRE_SUCCESS = 300_000L
-    private const val CACHE_EXPIRE_ERROR = 120_000L
+    private val loadMutex = Mutex()
 
     suspend fun load(context: Context, src: SavedAccount?): TootAccount? {
         src ?: return null
         return withContext(AppDispatchers.IO) {
-            cacheMutex.withLock {
-                val key = src.acct.ascii
+            loadMutex.withLock {
                 try {
                     // キャッシュの可否はHTTPヘッダに任せる
                     val newAccount = context.runApiTask2(
@@ -54,11 +47,9 @@ object AccountCache {
                         }
                         TootParser(this, src).account(json) ?: error("parse error.")
                     }
-                    map[key] = CacheItem(SystemClock.elapsedRealtime(), newAccount)
                     return@withLock newAccount
                 } catch (ex: Throwable) {
                     log.e(ex, "failed.")
-                    map[key] = CacheItem(SystemClock.elapsedRealtime(), null)
                     return@withLock null
                 }
             }

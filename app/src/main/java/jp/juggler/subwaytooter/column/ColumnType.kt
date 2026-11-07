@@ -40,6 +40,8 @@ import jp.juggler.util.data.notEmpty
 import jp.juggler.util.data.toJsonArray
 import jp.juggler.util.log.LogCategory
 import java.util.Locale
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlin.math.max
 import kotlin.math.min
 
@@ -125,14 +127,22 @@ enum class ColumnType(
             } else {
                 val path = column.makeProfileStatusesUrl(column.profileId)
 
-                if (instance.versionGE(TootInstance.VERSION_1_6)
-                // 将来的に正しく判定できる見込みがないので、Pleroma条件でのフィルタは行わない
-                // && instance.instanceType != TootInstance.InstanceType.Pleroma
-                ) {
-                    getStatusesPinned(client, "$path&pinned=true")
-                }
+                // 固定トゥートと本文を並行して取る。直列だと本文の表示が余計に遅れる
+                coroutineScope {
+                    val pinnedJob =
+                        if (instance.versionGE(TootInstance.VERSION_1_6)
+                        // 将来的に正しく判定できる見込みがないので、Pleroma条件でのフィルタは行わない
+                        // && instance.instanceType != TootInstance.InstanceType.Pleroma
+                        ) {
+                            async { getStatusesPinned(parallelClient(), "$path&pinned=true") }
+                        } else {
+                            null
+                        }
 
-                getStatusList(client, path)
+                    val result = getStatusList(client, path)
+                    pinnedJob?.await()
+                    result
+                }
             }
         },
 
@@ -460,29 +470,21 @@ enum class ColumnType(
         name1 = { it.getString(R.string.home) },
 
         loading = { client ->
-            val ra = getAnnouncements(client, force = true)
-            when {
-                ra == null || ra.error != null -> ra
-                else -> getStatusList(client, column.makeHomeTlUrl())
-            }
+            // 告知の読み込みで投稿一覧を待たせない
+            loadAnnouncementsLater(client, force = true)
+            getStatusList(client, column.makeHomeTlUrl())
         },
         refresh = { client ->
-            val ra = getAnnouncements(client)
-            when {
-                ra == null || ra.error != null -> ra
-                else -> getStatusList(client, column.makeHomeTlUrl())
-            }
+            loadAnnouncementsLater(client)
+            getStatusList(client, column.makeHomeTlUrl())
         },
         gap = { client ->
-            val ra = getAnnouncements(client)
-            when {
-                ra == null || ra.error != null -> ra
-                else -> getStatusList(
-                    client,
-                    column.makeHomeTlUrl(),
-                    mastodonFilterByIdRange = true
-                )
-            }
+            loadAnnouncementsLater(client)
+            getStatusList(
+                client,
+                column.makeHomeTlUrl(),
+                mastodonFilterByIdRange = true
+            )
         },
         gapDirection = gapDirectionBoth,
         bAllowPseudo = false,
@@ -1949,16 +1951,23 @@ enum class ColumnType(
         bAllowMisskey = false,
 
         loading = { client ->
-            val result = client.request("/api/v1/accounts/verify_credentials")
-            if (result == null || result.error != null) {
-                result
+            val known = accessInfo.loginAccount
+            if (known != null) {
+                // 既知のアカウント情報で足りるので verify_credentials は呼ばない
+                column.whoAccount = tootAccountRef(parser, known)
+                getScheduledStatuses(client)
             } else {
-                val a = parser.account(result.jsonObject) ?: accessInfo.loginAccount
-                if (a == null) {
-                    TootApiResult("can't parse account information")
+                val result = client.request("/api/v1/accounts/verify_credentials")
+                if (result == null || result.error != null) {
+                    result
                 } else {
-                    column.whoAccount = tootAccountRef(parser, a)
-                    getScheduledStatuses(client)
+                    val a = parser.account(result.jsonObject) ?: accessInfo.loginAccount
+                    if (a == null) {
+                        TootApiResult("can't parse account information")
+                    } else {
+                        column.whoAccount = tootAccountRef(parser, a)
+                        getScheduledStatuses(client)
+                    }
                 }
             }
         },

@@ -478,7 +478,10 @@ fun ActMain.scrollColumnStrip(select: Int) {
 
     launchMain {
         try {
-            val a = AccountCache.load(this@scrollColumnStrip, quickPostAccount())
+            val saved = quickPostAccount()
+            // 既知のアカウント情報で描く。毎回 verify_credentials を呼ばない
+            val a = saved?.loginAccount
+                ?: AccountCache.load(this@scrollColumnStrip, saved)
             views.ivQuickTootAccount.setImageUrl(
                 calcIconRound(views.ivQuickTootAccount.layoutParams.width),
                 urlStatic = a?.avatar_static,

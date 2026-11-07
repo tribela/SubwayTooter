@@ -12,6 +12,7 @@ import jp.juggler.subwaytooter.pref.PrefB
 import jp.juggler.subwaytooter.pref.PrefI
 import jp.juggler.subwaytooter.util.ScrollPosition
 import jp.juggler.util.*
+import jp.juggler.util.coroutine.launchMain
 import jp.juggler.util.coroutine.runOnMainLooper
 import jp.juggler.util.coroutine.runOnMainLooperDelayed
 import jp.juggler.util.data.JsonArray
@@ -59,10 +60,16 @@ class ColumnTask_Refresh(
         try {
 
             if (!bBottom) {
-                val filterList = column.loadFilter2(client)
-                if (filterList != null) {
-                    column.keywordFilterTrees = column.encodeFilterTree(filterList)
-                    filterUpdated = true
+                // フィルタは本文を待たせず取得し、届いたら適用し直す
+                launchMain {
+                    try {
+                        val trees = column.encodeFilterTree(column.loadFilter2(parallelClient()))
+                        column.keywordFilterTrees = trees
+                        filterUpdated = true
+                        column.checkFiltersForListData(trees)
+                    } catch (ex: Throwable) {
+                        log.e(ex, "loadFilter failed.")
+                    }
                 }
             }
 
@@ -70,14 +77,19 @@ class ColumnTask_Refresh(
         } catch (ex: Throwable) {
             return TootApiResult(ex.withCaption("refresh failed."))
         } finally {
-            try {
-                column.updateRelation(client, listTmp, column.whoAccount, parser)
-            } catch (ex: Throwable) {
-                log.e(ex, "updateRelation failed.")
-            }
+            val tmpList = listTmp
             ctClosed.set(true)
             runOnMainLooperDelayed(333L) {
                 if (!isCancelled) column.fireShowColumnStatus()
+            }
+            // 関係情報の取得で本文の表示を待たせない
+            launchMain {
+                try {
+                    column.updateRelation(client, tmpList, column.whoAccount, parser)
+                    column.fireShowContent(reason = "relation updated", changeList = ArrayList())
+                } catch (ex: Throwable) {
+                    log.e(ex, "updateRelation failed.")
+                }
             }
         }
     }

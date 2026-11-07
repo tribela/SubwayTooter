@@ -3,6 +3,7 @@ package jp.juggler.subwaytooter.column
 import android.content.Context
 import android.os.SystemClock
 import jp.juggler.subwaytooter.api.ApiPath
+import jp.juggler.subwaytooter.api.TootApiCallback
 import jp.juggler.subwaytooter.api.TootApiClient
 import jp.juggler.subwaytooter.api.TootApiResult
 import jp.juggler.subwaytooter.api.TootParser
@@ -48,6 +49,16 @@ abstract class ColumnTask(
 
     var parser = TootParser(context, accessInfo, highlightTrie = highlightTrie)
 
+    // 並行リクエスト用。メインのクライアントと同じコールバックを共有する
+    internal var apiCallback: TootApiCallback? = null
+
+    internal fun parallelClient(): TootApiClient {
+        val callback = apiCallback ?: object : TootApiCallback {
+            override suspend fun isApiCancelled() = isCancelled
+        }
+        return TootApiClient(context, callback = callback).apply { account = accessInfo }
+    }
+
     var listTmp: ArrayList<TimelineItem>? = null
 
     val context: Context
@@ -87,6 +98,7 @@ abstract class ColumnTask(
     internal suspend fun getAnnouncements(
         client: TootApiClient,
         force: Boolean = false,
+        publishProgress: Boolean = true,
     ): TootApiResult? {
         // announcements is shown only mastodon home timeline, not pseudo.
         if (isMastodon && !isPseudo) {
@@ -109,7 +121,7 @@ abstract class ColumnTask(
                             parseList(result.jsonArray) { tootAnnouncement(parser, it) }
                                 .notEmpty()
                         column.announcementUpdated = SystemClock.elapsedRealtime()
-                        client.publishApiProgress("announcements loaded")
+                        if (publishProgress) client.publishApiProgress("announcements loaded")
                         // other errors such as network or server fails will stop column loading.
                         return result
                     }
@@ -117,6 +129,19 @@ abstract class ColumnTask(
             }
         }
         return TootApiResult()
+    }
+
+    // 投稿一覧の読み込みを待たせないよう、アナウンスは別ジョブで読む
+    fun loadAnnouncementsLater(client: TootApiClient, force: Boolean = false) {
+        if (column.type != ColumnType.HOME || isPseudo) return
+        launchMain {
+            try {
+                getAnnouncements(client, force, publishProgress = false)
+            } catch (ex: Throwable) {
+                if (ex !is CancellationException) log.w(ex, "announcements load failed")
+            }
+            column.fireShowColumnHeader()
+        }
     }
 
     abstract suspend fun background(): TootApiResult?

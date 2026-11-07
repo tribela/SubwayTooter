@@ -710,6 +710,9 @@ suspend fun TootApiClient.syncAccountByAcct(
         if (lookupResult.error == null) {
             val ar = tootAccountRefOrNull(parser, parser.account(lookupResult.jsonObject))
             if (ar != null) return Pair(lookupResult, ar)
+        } else if (lookupResult.response?.code != 404) {
+            // 404(古いサーバ)以外の失敗で、重い検索APIにフォールバックしない
+            return Pair(lookupResult, null)
         }
         val (apiResult, searchResult) = requestMastodonSearch(
             parser,

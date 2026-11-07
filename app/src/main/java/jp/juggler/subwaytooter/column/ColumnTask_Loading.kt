@@ -11,6 +11,7 @@ import jp.juggler.subwaytooter.columnviewholder.scrollToTop
 import jp.juggler.subwaytooter.notification.injectData
 import jp.juggler.subwaytooter.pref.PrefB
 import jp.juggler.subwaytooter.util.OpenSticker
+import jp.juggler.util.coroutine.launchMain
 import jp.juggler.util.coroutine.runOnMainLooper
 import jp.juggler.util.coroutine.runOnMainLooperDelayed
 import jp.juggler.util.data.JsonArray
@@ -34,6 +35,9 @@ class ColumnTask_Loading(
 
     // プロフィールのヘッダ(アカウント情報・featured tags)を読み込み中か
     internal var progressTargetHeader = false
+
+    // フィルタを後から取得した場合、描画後に適用し直す必要がある
+    private var filterUpdated = false
 
     private fun fireProgress(s: String) {
         val targetHeader = progressTargetHeader
@@ -66,20 +70,32 @@ class ColumnTask_Loading(
             OpenSticker.loadAndWait()
         }
 
-        val client = TootApiClient(context, callback = object : TootApiCallback {
+        val apiCallback = object : TootApiCallback {
             override suspend fun isApiCancelled() = isCancelled || column.isDispose.get()
             override suspend fun publishApiProgress(s: String) = fireProgress(s)
-        })
+        }
+        this.apiCallback = apiCallback
+        val client = TootApiClient(context, callback = apiCallback)
 
         client.account = accessInfo
 
         try {
             context.authRepo.checkConfirmed(accessInfo, client)
 
-            column.keywordFilterTrees = column.encodeFilterTree(column.loadFilter2(client))
+            // フィルタは本文の解析を待たせずに取り、届いたら適用し直す
+            launchMain {
+                try {
+                    val trees = column.encodeFilterTree(column.loadFilter2(parallelClient()))
+                    column.keywordFilterTrees = trees
+                    filterUpdated = true
+                    column.checkFiltersForListData(trees)
+                } catch (ex: Throwable) {
+                    log.e(ex, "loadFilter failed.")
+                }
+            }
 
             if (!accessInfo.isNA) {
-                val (instance, instanceResult) = TootInstance.get(client)
+                val (instance, instanceResult) = TootInstance.get(parallelClient())
                 instance ?: return instanceResult
                 if (instance.instanceType == InstanceType.Pixelfed) {
                     return TootApiResult("currently Pixelfed instance is not supported.")
@@ -90,14 +106,19 @@ class ColumnTask_Loading(
         } catch (ex: Throwable) {
             return TootApiResult(ex.withCaption("loading failed."))
         } finally {
-            try {
-                column.updateRelation(client, listTmp, column.whoAccount, parser)
-            } catch (ex: Throwable) {
-                log.e(ex, "updateRelation failed.")
-            }
+            val tmpList = listTmp
             ctClosed.set(true)
             runOnMainLooperDelayed(333L) {
                 if (!isCancelled) column.fireShowColumnStatus()
+            }
+            // 関係情報の取得で本文の表示を待たせない
+            launchMain {
+                try {
+                    column.updateRelation(client, tmpList, column.whoAccount, parser)
+                    column.fireShowContent(reason = "relation updated", changeList = ArrayList())
+                } catch (ex: Throwable) {
+                    log.e(ex, "updateRelation failed.")
+                }
             }
         }
     }
@@ -159,6 +180,8 @@ class ColumnTask_Loading(
             // 初回ロード完了時はストリーミングを開始させる場合がある
             column.appState.streamManager.updateStreamingColumns()
         }
+
+        if (filterUpdated) column.checkFiltersForListData(column.keywordFilterTrees)
 
         column.fireShowContent(reason = "loading updated", reset = true)
 
