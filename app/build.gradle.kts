@@ -56,6 +56,8 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
         debug {
+            // すべてのマシンで同じ署名を使う (詳細は AGENTS.md)
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
