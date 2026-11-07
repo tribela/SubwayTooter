@@ -24,6 +24,8 @@ import jp.juggler.subwaytooter.table.accountListNonPseudo
 import jp.juggler.subwaytooter.table.daoAcctColor
 import jp.juggler.subwaytooter.table.daoSavedAccount
 import jp.juggler.subwaytooter.util.emptyCallback
+import jp.juggler.subwaytooter.util.isSameTranslationLanguage
+import jp.juggler.subwaytooter.util.translationTargetLanguage
 import jp.juggler.util.coroutine.launchAndShowError
 import jp.juggler.util.coroutine.launchMain
 import jp.juggler.util.data.JsonObject
@@ -634,54 +636,60 @@ fun canTranslateStatus(
 
         else -> return false
     }
-    // サーバは言語が不明な投稿や、翻訳先と同じ言語の投稿を翻訳できない
-    val source = target.language?.substringBefore('-')?.lowercase()
-        ?.takeIf { it.isNotBlank() && it != "und" }
-        ?: return false
-    val targetLanguage = context.resources.configuration.locales[0].language
-    if (source == targetLanguage) return false
-    return true
+    // 言語情報がない投稿も、サーバ側の自動判定で翻訳できる場合がある
+    return !isSameTranslationLanguage(target.language, context.translationTargetLanguage())
 }
 
 // Mastodon の翻訳APIでトゥートを翻訳する
 fun ActMain.translateStatus(
     accessInfo: SavedAccount,
     status: TootStatus?,
-    onUpdated: (() -> Unit)? = null,
+    onLoading: (() -> Unit)? = null,
+    onFinished: (() -> Unit)? = null,
 ) {
     status ?: return
     val target = status.reblog ?: status
-    if (!canTranslateStatus(this, accessInfo, target)) return
+    if (!canTranslateStatus(this, accessInfo, target)) {
+        onFinished?.invoke()
+        return
+    }
 
     // 既に翻訳済みなら再取得せずに表示する
     if (target.translation != null) {
         target.show_translation = true
-        onUpdated?.invoke()
+        onFinished?.invoke()
         return
     }
 
+    onLoading?.invoke()
     launchMain {
-        val lang = resources.configuration.locales[0].language
-        val result = runApiTask(accessInfo) { client ->
-            val body = JsonObject().apply {
-                if (lang.isNotBlank()) put("lang", lang)
-            }.toPostRequestBuilder()
-            // サーバ側は I18n.locale と投稿言語を比較して翻訳可否を判定するため、
-            // 対象言語を Accept-Language でも伝える
-            if (lang.isNotBlank()) body.header("Accept-Language", lang)
-            client.request("/api/v1/statuses/${target.id}/translate", body)
+        try {
+            val lang = translationTargetLanguage()
+            val result = runApiTask(
+                accessInfo,
+                progressStyle = ApiTask.PROGRESS_NONE
+            ) { client ->
+                val body = JsonObject().apply {
+                    if (lang.isNotBlank()) put("lang", lang)
+                }.toPostRequestBuilder()
+                // サーバ側は I18n.locale と投稿言語を比較して翻訳可否を判定するため、
+                // 対象言語を Accept-Language でも伝える
+                if (lang.isNotBlank()) body.header("Accept-Language", lang)
+                client.request("/api/v1/statuses/${target.id}/translate", body)
+            }
+            if (result == null) return@launchMain
+            result.error?.let { error ->
+                showToast(true, error)
+                return@launchMain
+            }
+            val json = result.jsonObject
+            if (json == null) {
+                showToast(true, R.string.translation_failed)
+                return@launchMain
+            }
+            target.applyTranslation(TootParser(this@translateStatus, accessInfo), json)
+        } finally {
+            onFinished?.invoke()
         }
-        if (result == null) return@launchMain
-        result.error?.let { error ->
-            showToast(true, error)
-            return@launchMain
-        }
-        val json = result.jsonObject
-        if (json == null) {
-            showToast(true, "translation failed")
-            return@launchMain
-        }
-        target.applyTranslation(TootParser(this@translateStatus, accessInfo), json)
-        onUpdated?.invoke()
     }
 }

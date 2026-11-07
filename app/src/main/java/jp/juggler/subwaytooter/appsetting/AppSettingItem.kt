@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Build
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Spinner
@@ -37,6 +38,7 @@ import jp.juggler.subwaytooter.pref.impl.StringPref
 import jp.juggler.subwaytooter.table.daoSavedAccount
 import jp.juggler.subwaytooter.table.sortedByNickname
 import jp.juggler.subwaytooter.util.CustomShareTarget
+import jp.juggler.subwaytooter.util.loadTranslationLanguageList
 import jp.juggler.subwaytooter.util.openBrowser
 import jp.juggler.subwaytooter.util.reNotAllowedInUserAgent
 import jp.juggler.subwaytooter.util.userAgentDefault
@@ -372,7 +374,6 @@ val appSettingRoot = AppSettingItem(null, SettingType.Section, R.string.app_sett
         }
 
         sw(PrefB.bpDontRemoveDeletedToot, R.string.dont_remove_deleted_toot_from_timeline)
-        sw(PrefB.bpShowTranslateButton, R.string.show_translate_button)
 
         spinnerSimple(
             PrefI.ipAdditionalButtonsPosition,
@@ -389,8 +390,48 @@ val appSettingRoot = AppSettingItem(null, SettingType.Section, R.string.app_sett
         sw(PrefB.bpEnableDomainTimeline, R.string.enable_domain_timeline)
     }
 
-    section(R.string.translate_or_custom_share) {
+    section(R.string.translation_inline) {
+        item(
+            SettingType.Spinner,
+            PrefS.spTranslationLanguage,
+            R.string.translation_language,
+        ) {
+            val sp = pref.cast<StringPref>()!!
+            spinnerInitializer = { spinner ->
+                val languages = loadTranslationLanguageList()
+                spinner.adapter = ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_item,
+                    languages.map { it.second }.toTypedArray()
+                ).apply {
+                    setDropDownViewResource(R.layout.lv_spinner_dropdown)
+                }
+                val index = languages.indexOfFirst { it.first == sp.value }
+                spinner.setSelection(if (index == -1) 0 else index)
+            }
+            spinnerOnSelected = { _, index ->
+                sp.value = loadTranslationLanguageList().getOrNull(index)?.first ?: ""
+            }
+        }
+    }
+
+    section(R.string.translation_external) {
+        sw(PrefB.bpShowTranslateButton, R.string.show_external_translate_button)
+
+        item(
+            SettingType.TextWithSelector,
+            CustomShareTarget.Translate.pref,
+            R.string.translation_app_external,
+        ) {
+            onClickEdit = { openCustomShareChooser(this@item, CustomShareTarget.Translate) }
+            onClickReset = { setCustomShare(this@item, CustomShareTarget.Translate, "") }
+            showTextView = { showCustomShareIcon(it, CustomShareTarget.Translate) }
+        }
+    }
+
+    section(R.string.custom_share_buttons) {
         for (target in CustomShareTarget.entries) {
+            if (target == CustomShareTarget.Translate) continue
             item(
                 SettingType.TextWithSelector,
                 target.pref,

@@ -933,9 +933,17 @@
     <string name="notifications_from_acct">ユーザからの通知</string>
     <string name="notifications_from">%1$sからの通知</string>
     <string name="show_translate_button">翻訳ボタンを表示する</string>
+    <string name="show_external_translate_button">外部翻訳ボタンを表示する</string>
+    <string name="translation_inline">インライン翻訳</string>
+    <string name="translation_external">外部翻訳</string>
+    <string name="translation_app_external">外部翻訳アプリ</string>
+    <string name="custom_share_buttons">カスタム共有ボタン</string>
+    <string name="translation_language">翻訳先の言語</string>
+    <string name="use_ui_language">%1$s (UIの言語)</string>
     <string name="translate">翻訳</string>
     <string name="translation_app">翻訳アプリ</string>
     <string name="translation">翻訳</string>
+    <string name="translation_loading">翻訳中…</string>
     <string name="load_failed">読み込めませんでした: %1$s</string>
     <string name="translation_header">%2$s による %1$s からの翻訳</string>
     <string name="translation_header_no_provider">%1$s からの翻訳</string>
