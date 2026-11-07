@@ -21,6 +21,7 @@ object ColumnEncoder {
     private const val KEY_SHOW_MEDIA_DESCRIPTION = "showMediaDescription"
     private const val KEY_COLUMN_ID = "column_id"
     private const val KEY_WITH_ATTACHMENT = "with_attachment"
+    private const val KEY_MEDIA_SPLIT = "media_split"
     private const val KEY_WITH_HIGHLIGHT = "with_highlight"
     private const val KEY_DONT_SHOW_BOOST = "dont_show_boost"
     private const val KEY_DONT_SHOW_FAVOURITE = "dont_show_favourite"
@@ -124,6 +125,7 @@ object ColumnEncoder {
             dst.putIfTrue(KEY_DONT_CLOSE, dontClose)
 
             dst.putIfTrue(KEY_WITH_ATTACHMENT, withAttachment)
+            if (!mediaSplitAttachments) dst[KEY_MEDIA_SPLIT] = false
             dst.putIfTrue(KEY_WITH_HIGHLIGHT, withHighlight)
             dst.putIfTrue(KEY_DONT_SHOW_BOOST, dontShowBoost)
             dst.putIfTrue(KEY_DONT_SHOW_FOLLOW, dontShowFollow)
@@ -268,6 +270,7 @@ object ColumnEncoder {
             dontClose = src.optBoolean(KEY_DONT_CLOSE)
             showMediaDescription = src.optBoolean(KEY_SHOW_MEDIA_DESCRIPTION, true)
             withAttachment = src.optBoolean(KEY_WITH_ATTACHMENT)
+            mediaSplitAttachments = src.optBoolean(KEY_MEDIA_SPLIT, true)
             withHighlight = src.optBoolean(KEY_WITH_HIGHLIGHT)
             dontShowBoost = src.optBoolean(KEY_DONT_SHOW_BOOST)
             dontShowFollow = src.optBoolean(KEY_DONT_SHOW_FOLLOW)

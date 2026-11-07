@@ -18,18 +18,19 @@ class ViewHolderMediaCell(
 ) {
     private val views = ItemMediaCellBinding.bind(itemView)
 
-    fun bindData(column: Column, status: TootStatus) {
-        val attachments = status.media_attachments
-        val attachment = attachments?.firstOrNull()
+    fun bindData(column: Column, status: TootStatus, attachmentIndex: Int) {
+        val attachments = (status.reblog ?: status).media_attachments
+        val attachment = attachments?.getOrNull(attachmentIndex)
 
         views.ivMedia.setImageUrl(
             0f,
             urlStatic = attachment?.urlForThumbnail(),
         )
 
-        val rest = (attachments?.size ?: 1) - 1
-        views.tvMediaCount.text = if (rest > 0) "+$rest" else null
-        views.tvMediaCount.vg(rest > 0)
+        val rest = (attachments?.size ?: 1) - attachmentIndex - 1
+        val showRest = !column.mediaSplitAttachments && rest > 0
+        views.tvMediaCount.text = if (showRest) "+$rest" else null
+        views.tvMediaCount.vg(showRest)
 
         itemView.setOnClickListener {
             activity.conversationLocal(

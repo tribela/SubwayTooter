@@ -163,6 +163,7 @@ fun ColumnViewHolder.onPageCreate(column: Column, pageIdx: Int, pageCount: Int) 
         cbShowMediaDescription.isCheckedNoAnime = column.showMediaDescription
         cbRemoteOnly.isCheckedNoAnime = column.remoteOnly
         cbWithAttachment.isCheckedNoAnime = column.withAttachment
+        cbMediaSplit.isCheckedNoAnime = column.mediaSplitAttachments
         cbWithHighlight.isCheckedNoAnime = column.withHighlight
         cbDontShowBoost.isCheckedNoAnime = column.dontShowBoost
         cbDontShowFollow.isCheckedNoAnime = column.dontShowFollow
@@ -191,6 +192,7 @@ fun ColumnViewHolder.onPageCreate(column: Column, pageIdx: Int, pageCount: Int) 
         cbRemoteOnly.vg(column.canRemoteOnly())
 
         cbWithAttachment.vg(bAllowFilter)
+        cbMediaSplit.vg(column.type == ColumnType.PROFILE)
         cbWithHighlight.vg(bAllowFilter)
         etRegexFilter.vg(bAllowFilter)
         llRegexFilter.vg(bAllowFilter)

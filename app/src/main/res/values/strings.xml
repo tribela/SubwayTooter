@@ -41,6 +41,7 @@
     <string name="following">Following</string>
     <string name="followers">Followers</string>
     <string name="media">Media</string>
+    <string name="media_split_attachments">Show each media separately</string>
     <string name="statuses">Statuses</string>
     <string name="hide">Hide</string>
     <string name="nsfw">NSFW</string>

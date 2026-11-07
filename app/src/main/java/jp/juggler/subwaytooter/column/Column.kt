@@ -167,6 +167,9 @@ class Column(
     val isMediaGrid: Boolean
         get() = type == ColumnType.PROFILE && profileTab == ProfileTab.Media
 
+    // メディアタブで添付を1枚ずつ並べる。偽なら投稿ごとに1枚 + 残数バッジ
+    internal var mediaSplitAttachments = true
+
     internal var statusId: EntityId? = null
     internal var originalStatus: JsonObject? = null
 

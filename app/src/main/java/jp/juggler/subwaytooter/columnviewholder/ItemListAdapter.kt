@@ -67,7 +67,10 @@ class ItemListAdapter(
         }
     }
 
+    class MediaCell(val status: TootStatus, val attachmentIndex: Int)
+
     private var list: ArrayList<TimelineItem>
+    private val mediaCells = ArrayList<MediaCell>()
     private val handler: Handler
 
     init {
@@ -76,13 +79,44 @@ class ItemListAdapter(
         setHasStableIds(true)
     }
 
+    fun getSpanSize(position: Int): Int {
+        if (!column.isMediaGrid) return 1
+        return if (position == 0 && column.type.headerType != null) 3 else 1
+    }
+
     override fun getItemCount(): Int {
+        if (column.isMediaGrid) return column.toAdapterIndex(mediaCells.size)
         return column.toAdapterIndex(column.listData.size)
+    }
+
+    private fun rebuildMediaCells() {
+        mediaCells.clear()
+        if (!column.isMediaGrid) return
+        val split = column.mediaSplitAttachments
+        for (item in list) {
+            if (item !is TootStatus) continue
+            val attachments = (item.reblog ?: item).media_attachments ?: continue
+            if (split) {
+                attachments.forEachIndexed { index, attachment ->
+                    if (attachment.urlForThumbnail() != null) {
+                        mediaCells.add(MediaCell(item, index))
+                    }
+                }
+            } else {
+                mediaCells.add(MediaCell(item, 0))
+            }
+        }
     }
 
     override fun getItemId(position: Int): Long {
         return try {
-            list[column.toListIndex(position)].listViewItemId
+            when {
+                !column.isMediaGrid -> list[column.toListIndex(position)].listViewItemId
+                else -> {
+                    val cell = mediaCells[column.toListIndex(position)]
+                    cell.status.listViewItemId * 31 + cell.attachmentIndex
+                }
+            }
         } catch (ignored: Throwable) {
             0L
         }
@@ -143,8 +177,9 @@ class ItemListAdapter(
         } else if (holder is ViewHolderHeaderBase) {
             holder.bindData(column)
         } else if (holder is ViewHolderMediaCell) {
-            val listIndex = column.toListIndex(adapterIndex)
-            (list.getOrNull(listIndex) as? TootStatus)?.let { holder.bindData(column, it) }
+            mediaCells.getOrNull(column.toListIndex(adapterIndex))?.let {
+                holder.bindData(column, it.status, it.attachmentIndex)
+            }
         }
     }
 
@@ -169,6 +204,14 @@ class ItemListAdapter(
         val newList = ArrayList<TimelineItem>()
         newList.ensureCapacity(column.listData.size)
         newList.addAll(column.listData)
+
+        // グリッドではセル数が投稿数と一致しないので、部分通知はせず作り直す
+        if (column.isMediaGrid) {
+            this.list = newList
+            rebuildMediaCells()
+            notifyDataSetChanged()
+            return
+        }
 
         when {
             // 変更リストが指定された場合はヘッダ部分と変更部分を通知する

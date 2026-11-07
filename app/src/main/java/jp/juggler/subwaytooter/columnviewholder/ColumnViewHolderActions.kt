@@ -96,6 +96,11 @@ fun ColumnViewHolder.onCheckedChangedImpl(view: CompoundButton?, isChecked: Bool
             reloadBySettingChange()
         }
 
+        cbMediaSplit -> {
+            column.mediaSplitAttachments = isChecked
+            reloadBySettingChange()
+        }
+
         cbRemoteOnly -> {
             column.remoteOnly = isChecked
             reloadBySettingChange()

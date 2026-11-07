@@ -47,6 +47,7 @@
     <string name="following">팔로우함</string>
     <string name="followers">팔로워</string>
     <string name="media">미디어</string>
+    <string name="media_split_attachments">미디어를 한 장씩 표시</string>
     <string name="statuses">게시물</string>
     <string name="hide">숨기기</string>
     <string name="nsfw">열람주의</string>

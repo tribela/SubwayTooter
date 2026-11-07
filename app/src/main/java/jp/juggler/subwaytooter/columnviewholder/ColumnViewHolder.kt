@@ -22,12 +22,12 @@ import com.google.android.flexbox.JustifyContent
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection
 import jp.juggler.subwaytooter.*
-import jp.juggler.subwaytooter.api.entity.TootStatus
 import jp.juggler.subwaytooter.column.*
 import jp.juggler.subwaytooter.pref.PrefB
 import jp.juggler.subwaytooter.streaming.*
 import jp.juggler.subwaytooter.table.daoAcctColor
 import jp.juggler.subwaytooter.util.*
+import jp.juggler.subwaytooter.view.ListDivider
 import jp.juggler.subwaytooter.view.MyLinkMovementMethod
 import jp.juggler.subwaytooter.view.MyTextView
 import jp.juggler.subwaytooter.view.OutsideDrawerLayout
@@ -128,6 +128,7 @@ class ColumnViewHolder(
     lateinit var cbShowMediaDescription: CheckBox
     lateinit var cbRemoteOnly: CheckBox
     lateinit var cbWithAttachment: CheckBox
+    lateinit var cbMediaSplit: CheckBox
     lateinit var cbWithHighlight: CheckBox
     lateinit var cbDontShowBoost: CheckBox
     lateinit var cbDontShowFollow: CheckBox
@@ -440,6 +441,7 @@ class ColumnViewHolder(
             cbRemoteOnly,
             cbSystemNotificationNotRelated,
             cbWithAttachment,
+            cbMediaSplit,
             cbWithHighlight,
         ).forEach { it.setOnCheckedChangeListener(this) }
 
@@ -898,6 +900,10 @@ class ColumnViewHolder(
                     text = context.getString(R.string.with_attachment)
                 }.lparams(matchParent, wrapContent)
 
+                cbMediaSplit = checkBox {
+                    text = context.getString(R.string.media_split_attachments)
+                }.lparams(matchParent, wrapContent)
+
                 cbSystemNotificationNotRelated = checkBox {
                     text = context.getString(R.string.system_notification_not_related)
                 }.lparams(matchParent, wrapContent)
@@ -1352,25 +1358,22 @@ class ColumnViewHolder(
 
     // プロフィールのメディアタブはサムネイルのグリッドで表示する
     fun applyMediaGridMode() {
-
         val col = column ?: return
         val current = listView.layoutManager
-        if (col.isMediaGrid) {
+        val wantGrid = col.isMediaGrid
+
+        val divider = (0 until listView.itemDecorationCount)
+            .map { listView.getItemDecorationAt(it) }
+            .firstOrNull { it is ListDivider }
+        if (wantGrid && divider != null) listView.removeItemDecoration(divider)
+        if (!wantGrid && divider == null) listView.addItemDecoration(ListDivider(activity))
+
+        if (wantGrid) {
             if (current is GridLayoutManager) return
             val grid = GridLayoutManager(activity, MEDIA_GRID_COLUMNS)
             grid.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    val c = column ?: return MEDIA_GRID_COLUMNS
-                    if (position == 0 && c.type.headerType != null) return MEDIA_GRID_COLUMNS
-                    return try {
-                        when (c.listData[c.toListIndex(position)]) {
-                            is TootStatus -> 1
-                            else -> MEDIA_GRID_COLUMNS
-                        }
-                    } catch (ex: Throwable) {
-                        MEDIA_GRID_COLUMNS
-                    }
-                }
+                override fun getSpanSize(position: Int): Int =
+                    statusAdapter?.getSpanSize(position) ?: 1
             }
             listView.layoutManager = grid
             listLayoutManager = grid
