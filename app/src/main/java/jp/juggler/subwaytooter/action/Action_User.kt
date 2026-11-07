@@ -617,15 +617,22 @@ fun ActMain.userProfileLocal(
 
 // user@host で指定されたユーザのプロフを開く
 // Intent-Filter や openChromeTabから 呼ばれる
+// knownId は投稿の mentions メタデータにあるアカウントID。分かっている場合は検索APIを挟まない
 fun ActMain.userProfile(
     pos: Int,
     accessInfo: SavedAccount?,
     acct: Acct,
     userUrl: String,
     originalUrl: String = userUrl,
+    knownId: EntityId? = null,
 ) = launchAndShowError {
     if (accessInfo?.isPseudo == false) {
         // 文脈のアカウントがあり、疑似アカウントではない
+
+        if (knownId != null) {
+            addColumn(pos, accessInfo, ColumnType.PROFILE, params = arrayOf(knownId))
+            return@launchAndShowError
+        }
 
         if (!accessInfo.matchHost(acct.host)) {
             // 文脈のアカウントと異なるインスタンスなら、別アカウントで開く

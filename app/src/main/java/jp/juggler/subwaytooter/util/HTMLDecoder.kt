@@ -1408,6 +1408,8 @@ object HTMLDecoder {
                 // check mentions to skip getAcctFromUrl
                 val mention = options.mentions?.find { it.url == href }
                 if (mention != null) {
+                    // クリック時に検索APIを挟まずにプロフを開けるよう、メントの情報を渡す
+                    linkInfo.mention = mention
                     getFullAcctOrNull(
                         mention.acct,
                         href,

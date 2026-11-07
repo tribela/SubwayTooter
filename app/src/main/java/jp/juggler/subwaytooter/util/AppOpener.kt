@@ -264,31 +264,33 @@ fun openCustomTab(
                 return
             }
 
+            // メントのIDは投稿のメタデータに含まれるので、検索で引き直さずに使える
+            val mentionId = linkInfo?.mention?.id?.takeIf { it.notDefaultOrConfirming }
+
             // opener.linkInfo をチェックしてメンションを判別する
             val mention = linkInfo?.mention
             if (mention != null) {
                 val fullAcct = getFullAcctOrNull(mention.acct, mention.url, accessInfo)
                 if (fullAcct != null) {
-                    if (fullAcct.host != null) {
-                        when (fullAcct.host.ascii) {
-                            "github.com",
-                            "twitter.com",
-                            ->
-                                activity.openCustomTab(mention.url)
-                            "gmail.com" ->
-                                activity.openBrowser("mailto:${fullAcct.pretty}")
+                    when (fullAcct.host?.ascii) {
+                        "github.com",
+                        "twitter.com",
+                        ->
+                            activity.openCustomTab(mention.url)
+                        "gmail.com" ->
+                            activity.openBrowser("mailto:${fullAcct.pretty}")
 
-                            else ->
-                                activity.userProfile(
-                                    pos,
-                                    accessInfo, // FIXME nullが必要なケースがあったっけなかったっけ…
-                                    acct = fullAcct,
-                                    userUrl = mention.url,
-                                    originalUrl = url,
-                                )
-                        }
-                        return
+                        else ->
+                            activity.userProfile(
+                                pos,
+                                accessInfo, // FIXME nullが必要なケースがあったっけなかったっけ…
+                                acct = fullAcct,
+                                userUrl = mention.url,
+                                originalUrl = url,
+                                knownId = mentionId,
+                            )
                     }
+                    return
                 }
             }
 
@@ -327,7 +329,8 @@ fun openCustomTab(
                         pos,
                         accessInfo,
                         Acct.parse(user, host),
-                        url
+                        url,
+                        knownId = mentionId,
                     )
                 }
                 return
