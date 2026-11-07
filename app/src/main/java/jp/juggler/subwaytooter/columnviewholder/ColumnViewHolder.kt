@@ -13,6 +13,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexWrap
@@ -21,6 +22,7 @@ import com.google.android.flexbox.JustifyContent
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection
 import jp.juggler.subwaytooter.*
+import jp.juggler.subwaytooter.api.entity.TootStatus
 import jp.juggler.subwaytooter.column.*
 import jp.juggler.subwaytooter.pref.PrefB
 import jp.juggler.subwaytooter.streaming.*
@@ -40,6 +42,8 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.custom.customView
 import java.lang.Runnable
 import java.lang.reflect.Field
+
+private const val MEDIA_GRID_COLUMNS = 3
 
 @SuppressLint("ClickableViewAccessibility")
 class ColumnViewHolder(
@@ -1343,6 +1347,35 @@ class ColumnViewHolder(
             }
         }.lparams(matchParent, 0) {
             weight = 1f
+        }
+    }
+
+    // プロフィールのメディアタブはサムネイルのグリッドで表示する
+    fun applyMediaGridMode() {
+
+        val col = column ?: return
+        val current = listView.layoutManager
+        if (col.isMediaGrid) {
+            if (current is GridLayoutManager) return
+            val grid = GridLayoutManager(activity, MEDIA_GRID_COLUMNS)
+            grid.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    val c = column ?: return MEDIA_GRID_COLUMNS
+                    if (position == 0 && c.type.headerType != null) return MEDIA_GRID_COLUMNS
+                    return try {
+                        when (c.listData[c.toListIndex(position)]) {
+                            is TootStatus -> 1
+                            else -> MEDIA_GRID_COLUMNS
+                        }
+                    } catch (ex: Throwable) {
+                        MEDIA_GRID_COLUMNS
+                    }
+                }
+            }
+            listView.layoutManager = grid
+            listLayoutManager = grid
+        } else if (current is GridLayoutManager) {
+            listView.layoutManager = LinearLayoutManager(activity).also { listLayoutManager = it }
         }
     }
 

@@ -29,7 +29,8 @@ enum class ColumnPagingType { Default, Cursor, Offset, None, }
 enum class ProfileTab(val id: Int, val ct: ColumnType) {
     Status(0, ColumnType.TabStatus),
     Following(1, ColumnType.TabFollowing),
-    Followers(2, ColumnType.TabFollowers)
+    Followers(2, ColumnType.TabFollowers),
+    Media(3, ColumnType.TabMedia)
 }
 
 enum class HeaderType(val viewType: Int) {
@@ -161,6 +162,10 @@ class Column(
     internal var columnBgImageAlpha = 1f
 
     internal var profileTab = ProfileTab.Status
+
+    // プロフィールのメディアタブをグリッドで表示する
+    val isMediaGrid: Boolean
+        get() = type == ColumnType.PROFILE && profileTab == ProfileTab.Media
 
     internal var statusId: EntityId? = null
     internal var originalStatus: JsonObject? = null

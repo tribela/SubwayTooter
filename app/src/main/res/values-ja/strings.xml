@@ -349,6 +349,7 @@
     <string name="follow_succeeded">フォローできました</string>
     <string name="follow_suggestion">フォロー推奨ユーザ</string>
     <string name="followers">フォロワー</string>
+    <string name="media">メディア</string>
     <string name="following">フォロー中</string>
     <string name="footer_color">フッタの色</string>
     <string name="force_gap_when_refresh">リフレッシュ時に常にギャップを挟む</string>

@@ -165,6 +165,28 @@ enum class ColumnType(
         canStreamingMisskey = streamingTypeNo,
     ),
 
+    ProfileMediaMastodon(
+
+        loading = { client ->
+            getStatusList(client, column.makeProfileMediaUrl(column.profileId))
+        },
+
+        refresh = { client ->
+            getStatusList(client, column.makeProfileMediaUrl(column.profileId))
+        },
+        gap = { client ->
+            getStatusList(
+                client,
+                column.makeProfileMediaUrl(column.profileId),
+                mastodonFilterByIdRange = true,
+            )
+        },
+        gapDirection = gapDirectionBoth,
+
+        canStreamingMastodon = streamingTypeNo,
+        canStreamingMisskey = streamingTypeNo,
+    ),
+
     ProfileStatusMisskey(
 
         loading = { client ->
@@ -428,6 +450,16 @@ enum class ColumnType(
             )
         },
         gapDirection = gapDirectionMastodonWorkaround,
+
+        canStreamingMastodon = streamingTypeNo,
+        canStreamingMisskey = streamingTypeNo,
+    ),
+
+    TabMedia(
+        loading = { dispatchProfileTabMedia().loading(this, it) },
+        refresh = { dispatchProfileTabMedia().refresh(this, it) },
+        gap = { dispatchProfileTabMedia().gap(this, it) },
+        gapDirection = { dispatchProfileTabMedia().gapDirection(this, it) },
 
         canStreamingMastodon = streamingTypeNo,
         canStreamingMisskey = streamingTypeNo,

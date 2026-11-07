@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import jp.juggler.subwaytooter.ActMain
 import jp.juggler.subwaytooter.api.entity.TimelineItem
+import jp.juggler.subwaytooter.api.entity.TootStatus
 import jp.juggler.subwaytooter.column.Column
 import jp.juggler.subwaytooter.column.HeaderType
 import jp.juggler.subwaytooter.column.toAdapterIndex
@@ -28,6 +29,8 @@ class ItemListAdapter(
 
     companion object {
         private val log = LogCategory("ItemListAdapter")
+        private const val VIEW_TYPE_ITEM = 0
+        private const val VIEW_TYPE_MEDIA_CELL = 10_000
     }
 
     private class DiffCallback(
@@ -87,16 +90,21 @@ class ItemListAdapter(
 
     override fun getItemViewType(position: Int): Int {
         val headerType = column.type.headerType
-        if (headerType == null || position > 0) return 0
-        return headerType.viewType
+        if (headerType != null && position == 0) return headerType.viewType
+        if (column.isMediaGrid) return VIEW_TYPE_MEDIA_CELL
+        return VIEW_TYPE_ITEM
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         when (viewType) {
-            0 -> {
+            VIEW_TYPE_ITEM -> {
                 val holder = ItemViewHolder(activity)
                 holder.viewRoot.tag = holder
                 return ViewHolderItem(holder)
+            }
+
+            VIEW_TYPE_MEDIA_CELL -> {
+                return ViewHolderMediaCell(activity, parent)
             }
 
             HeaderType.Profile.viewType -> {
@@ -134,6 +142,9 @@ class ItemListAdapter(
             holder.ivh.bind(this, column, bSimpleList, list[listIndex])
         } else if (holder is ViewHolderHeaderBase) {
             holder.bindData(column)
+        } else if (holder is ViewHolderMediaCell) {
+            val listIndex = column.toListIndex(adapterIndex)
+            (list.getOrNull(listIndex) as? TootStatus)?.let { holder.bindData(column, it) }
         }
     }
 

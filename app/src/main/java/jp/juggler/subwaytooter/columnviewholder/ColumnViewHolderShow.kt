@@ -92,6 +92,8 @@ internal fun ColumnViewHolder.showContent(
 ) {
     // クラッシュレポートにadapterとリストデータの状態不整合が多かったので、
     // とりあえずリストデータ変更の通知だけは最優先で行っておく
+    applyMediaGridMode()
+
     try {
         statusAdapter?.notifyChange(reason, changeList, reset)
     } catch (ex: Throwable) {

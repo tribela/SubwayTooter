@@ -383,6 +383,12 @@ fun Column.dispatchProfileTabStatus() =
         else -> ColumnType.ProfileStatusMastodon
     }
 
+fun Column.dispatchProfileTabMedia() =
+    when {
+        isMisskey -> ColumnType.ProfileStatusMisskey
+        else -> ColumnType.ProfileMediaMastodon
+    }
+
 fun Column.dispatchProfileTabFollowing() =
     when {
         misskeyVersion >= 11 -> ColumnType.FollowingMisskey11
@@ -401,6 +407,9 @@ fun Column.dispatchProfileTabFollowers() =
 
 fun ColumnTask.dispatchProfileTabStatus() =
     column.dispatchProfileTabStatus()
+
+fun ColumnTask.dispatchProfileTabMedia() =
+    column.dispatchProfileTabMedia()
 
 fun ColumnTask.dispatchProfileTabFollowing() =
     column.dispatchProfileTabFollowing()

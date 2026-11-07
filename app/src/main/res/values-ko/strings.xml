@@ -46,6 +46,7 @@
     <string name="statuses_of">%1$s의 프로파일</string>
     <string name="following">팔로우함</string>
     <string name="followers">팔로워</string>
+    <string name="media">미디어</string>
     <string name="statuses">게시물</string>
     <string name="hide">숨기기</string>
     <string name="nsfw">열람주의</string>

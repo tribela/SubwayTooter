@@ -104,6 +104,7 @@ internal class ViewHolderHeaderProfile(
                 btnFollowing,
                 btnFollowers,
                 btnStatusCount,
+                btnMedia,
                 btnMore,
                 btnFollow,
                 tvRemoteProfileWarning,
@@ -184,6 +185,8 @@ internal class ViewHolderHeaderProfile(
             btnFollowing.textColor = contentColor
             btnFollowers.textColor = contentColor
             tvFeaturedTags.textColor = contentColor
+
+            btnMedia.vg(!accessInfo.isMisskey)
 
             setIconDrawableId(
                 activity,
@@ -401,6 +404,11 @@ internal class ViewHolderHeaderProfile(
 
             R.id.btnStatusCount -> {
                 column.profileTab = ProfileTab.Status
+                reloadBySettingChange()
+            }
+
+            R.id.btnMedia -> {
+                column.profileTab = ProfileTab.Media
                 reloadBySettingChange()
             }
 

@@ -354,6 +354,9 @@ fun Column.makeProfileStatusesUrl(profileId: EntityId?): String {
     return path
 }
 
+fun Column.makeProfileMediaUrl(profileId: EntityId?): String =
+    "/api/v1/accounts/$profileId/statuses?limit=${ApiPath.READ_LIMIT}&only_media=true&exclude_replies=true"
+
 fun StringBuilder.appendHashtagExtra(column: Column): StringBuilder {
     val limit =
         (Column.HASHTAG_ELLIPSIZE * 2 - kotlin.math.min(length, Column.HASHTAG_ELLIPSIZE)) / 3
