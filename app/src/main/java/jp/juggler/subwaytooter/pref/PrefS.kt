@@ -45,6 +45,7 @@ object PrefS {
     val spQuickTootVisibility = StringPref("QuickTootVisibility", "")
 
     val spTranslateAppComponent = StringPref("TranslateAppComponent", "")
+    val spTranslationLanguage = StringPref("TranslationLanguage", "")
     val spCustomShare1 = StringPref("CustomShare1", "")
     val spCustomShare2 = StringPref("CustomShare2", "")
     val spCustomShare3 = StringPref("CustomShare3", "")

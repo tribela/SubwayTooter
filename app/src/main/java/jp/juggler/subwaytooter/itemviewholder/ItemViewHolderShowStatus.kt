@@ -180,6 +180,16 @@ fun ItemViewHolder.showStatus(
 }
 
 // 翻訳結果の表示 (Mastodon 4.0+)
+fun ItemViewHolder.showTranslationLoading() {
+    llTranslation.visibility = View.VISIBLE
+    tvTranslationHeader.visibility = View.GONE
+    tvTranslationContent.apply {
+        setTextColor(colorTextContent)
+        alpha = 0.7f
+        text = activity.getString(R.string.translation_loading)
+    }
+}
+
 fun ItemViewHolder.showTranslation(status: TootStatus) {
     val target = status.reblog ?: status
     val translation = target.translation
@@ -189,9 +199,11 @@ fun ItemViewHolder.showTranslation(status: TootStatus) {
     }
 
     llTranslation.visibility = View.VISIBLE
+    tvTranslationHeader.visibility = View.VISIBLE
     tvTranslationHeader.setTextColor(colorTextContent)
     tvTranslationHeader.alpha = 0.7f
     tvTranslationContent.setTextColor(colorTextContent)
+    tvTranslationContent.alpha = 1f
 
     val lang = translation.detected_source_language ?: translation.language
     val provider = translation.provider

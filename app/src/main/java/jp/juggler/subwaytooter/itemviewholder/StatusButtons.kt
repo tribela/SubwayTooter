@@ -617,10 +617,21 @@ class StatusButtons(
                         itemViewHolder.showTranslation(status)
                         bindTranslateButton(status)
                     } else {
-                        translateStatus(accessInfo, status) {
-                            itemViewHolder.showTranslation(status)
-                            bindTranslateButton(status)
-                        }
+                        translateStatus(
+                            accessInfo,
+                            status,
+                            onLoading = {
+                                if (itemViewHolder.statusShowing === status) {
+                                    itemViewHolder.showTranslationLoading()
+                                }
+                            },
+                            onFinished = {
+                                if (itemViewHolder.statusShowing === status) {
+                                    itemViewHolder.showTranslation(status)
+                                    bindTranslateButton(status)
+                                }
+                            },
+                        )
                     }
                 }
 
