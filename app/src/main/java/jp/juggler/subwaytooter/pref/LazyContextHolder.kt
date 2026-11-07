@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.startup.Initializer
-import jp.juggler.subwaytooter.push.FcmFlavor
 import jp.juggler.util.os.applicationContextSafe
 import java.util.concurrent.atomic.AtomicReference
 
@@ -21,7 +20,8 @@ val lazyPref
         ?: LazyContextHolder.prefNullable
         ?: error("LazyContextHolder not initialized")
 
-const val FILE_PROVIDER_AUTHORITY = "${FcmFlavor.APPLICATION_ID}.FileProvider"
+fun fileProviderAuthority(context: Context): String =
+    "${context.packageName}.FileProvider"
 
 @SuppressLint("StaticFieldLeak")
 object LazyContextHolder {

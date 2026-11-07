@@ -58,7 +58,7 @@ import jp.juggler.subwaytooter.R
 import jp.juggler.subwaytooter.api.entity.TootStatus
 import jp.juggler.subwaytooter.dialog.DlgConfirm.confirm
 import jp.juggler.subwaytooter.dialog.actionsDialog
-import jp.juggler.subwaytooter.pref.FILE_PROVIDER_AUTHORITY
+import jp.juggler.subwaytooter.pref.fileProviderAuthority
 import jp.juggler.subwaytooter.util.StColorScheme
 import jp.juggler.subwaytooter.util.collectOnLifeCycle
 import jp.juggler.subwaytooter.util.dummyStColorTheme
@@ -194,7 +194,7 @@ class LanguageFilterActivity : ComponentActivity() {
         }
         val uri = FileProvider.getUriForFile(
             this@LanguageFilterActivity,
-            FILE_PROVIDER_AUTHORITY,
+            fileProviderAuthority(this@LanguageFilterActivity),
             file,
         )
         val intent = Intent(Intent.ACTION_SEND).apply {

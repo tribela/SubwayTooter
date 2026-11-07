@@ -45,7 +45,7 @@ import jp.juggler.subwaytooter.databinding.ActAppSettingBinding
 import jp.juggler.subwaytooter.databinding.LvSettingItemBinding
 import jp.juggler.subwaytooter.dialog.DlgAppPicker
 import jp.juggler.subwaytooter.notification.restartAllWorker
-import jp.juggler.subwaytooter.pref.FILE_PROVIDER_AUTHORITY
+import jp.juggler.subwaytooter.pref.fileProviderAuthority
 import jp.juggler.subwaytooter.pref.impl.BooleanPref
 import jp.juggler.subwaytooter.pref.impl.FloatPref
 import jp.juggler.subwaytooter.pref.impl.IntPref
@@ -870,7 +870,7 @@ class ActAppSetting : AppCompatActivity(), View.OnClickListener {
             afterProc = {
                 try {
                     val uri =
-                        FileProvider.getUriForFile(activity, FILE_PROVIDER_AUTHORITY, it)
+                        FileProvider.getUriForFile(activity, fileProviderAuthority(activity), it)
                     Intent(Intent.ACTION_SEND).apply {
                         type = contentResolver.getType(uri)
                         putExtra(Intent.EXTRA_SUBJECT, "SubwayTooter app data")
@@ -1330,7 +1330,7 @@ class ActAppSetting : AppCompatActivity(), View.OnClickListener {
         val context = this
         launchAndShowError {
             val logZipFile = daoLogData.createLogFile(context)
-            val uri = FileProvider.getUriForFile(context, FILE_PROVIDER_AUTHORITY, logZipFile)
+            val uri = FileProvider.getUriForFile(context, fileProviderAuthority(context), logZipFile)
 
             val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
                 type = "text/plain"

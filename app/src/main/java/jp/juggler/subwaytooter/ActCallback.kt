@@ -6,7 +6,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import jp.juggler.subwaytooter.pref.FILE_PROVIDER_AUTHORITY
+import jp.juggler.subwaytooter.pref.fileProviderAuthority
 import jp.juggler.util.*
 import jp.juggler.util.data.digestSHA256Hex
 import jp.juggler.util.log.LogCategory
@@ -223,7 +223,7 @@ class ActCallback : AppCompatActivity() {
                 inStream.copyTo(outStream)
             }
         }
-        return FileProvider.getUriForFile(this, FILE_PROVIDER_AUTHORITY, dst)
+        return FileProvider.getUriForFile(this, fileProviderAuthority(this), dst)
     }
 
     private fun sweepOldCache() {
