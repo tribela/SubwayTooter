@@ -19,6 +19,8 @@ import jp.juggler.util.data.notZero
 import jp.juggler.util.log.LogCategory
 import jp.juggler.util.log.withCaption
 import jp.juggler.util.network.toPostRequestBuilder
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import java.util.*
 
 @Suppress("ClassNaming")
@@ -48,10 +50,13 @@ class ColumnTask_Loading(
             OpenSticker.loadAndWait()
         }
 
-        val client = TootApiClient(context, callback = object : TootApiCallback {
+        val apiCallback = object : TootApiCallback {
             override suspend fun isApiCancelled() = isCancelled || column.isDispose.get()
             override suspend fun publishApiProgress(s: String) = fireProgress(s)
-        })
+        }
+        this.apiCallback = apiCallback
+
+        val client = TootApiClient(context, callback = apiCallback)
 
         client.account = accessInfo
 
@@ -1131,59 +1136,69 @@ class ColumnTask_Loading(
             //
             result
         } else {
-            // 指定された発言そのもの
-            var result = client.request(
-                String.format(Locale.JAPAN, ApiPath.PATH_STATUSES, column.statusId)
-            )
-            var jsonObject = result?.jsonObject ?: return result
-            val targetStatus = parser.status(jsonObject)
-                ?: return TootApiResult("TootStatus parse failed.")
+            // 指定された発言そのものと前後の会話は互いに独立しているので並行して取得する。
+            // 会話の取得を先に始めるので、大きなスレッドでも待ち時間は足し算ではなく最大値になる。
+            val contextPath = "/api/v1/statuses/${column.statusId}/context" +
+                    (if (withReference) "?with_reference=true" else "")
 
-            // 前後の会話
-            result = client.request(
-                "/api/v1/statuses/${column.statusId}/context${
-                    when (withReference) {
-                        true -> "?with_reference=true"
-                        else -> ""
+            coroutineScope {
+                val contextJob = async { parallelClient().request(contextPath) }
+
+                // 指定された発言そのもの
+                val statusResult = client.request(
+                    String.format(Locale.JAPAN, ApiPath.PATH_STATUSES, column.statusId)
+                )
+                val statusObject = statusResult?.jsonObject
+                if (statusObject == null) {
+                    contextJob.cancel()
+                    return@coroutineScope statusResult
+                }
+                val targetStatus = parser.status(statusObject)
+                if (targetStatus == null) {
+                    contextJob.cancel()
+                    return@coroutineScope TootApiResult("TootStatus parse failed.")
+                }
+
+                // 前後の会話
+                val contextResult = contextJob.await()
+                val contextObject = contextResult?.jsonObject
+                    ?: return@coroutineScope contextResult
+                val conversationContext =
+                    parseItem(contextObject) { TootContext(parser, it) }
+
+                // 一つのリストにまとめる
+                targetStatus.conversation_main = true
+                if (conversationContext != null) {
+                    val listNew = ArrayList<TimelineItem>(
+                        (conversationContext.ancestors?.size ?: 0) +
+                                (conversationContext.descendants?.size ?: 0) +
+                                1
+                    )
+
+                    if (conversationContext.references != null) {
+                        addWithFilterStatus(listNew, conversationContext.references)
                     }
-                }"
-            )
-            jsonObject = result?.jsonObject ?: return result
-            val conversationContext =
-                parseItem(jsonObject) { TootContext(parser, it) }
 
-            // 一つのリストにまとめる
-            targetStatus.conversation_main = true
-            if (conversationContext != null) {
+                    if (conversationContext.ancestors != null) {
+                        addWithFilterStatus(listNew, conversationContext.ancestors)
+                    }
 
-                this.listTmp = ArrayList(
-                    (conversationContext.ancestors?.size ?: 0) +
-                            (conversationContext.descendants?.size ?: 0) +
-                            1
-                )
+                    addOne(listNew, targetStatus)
 
-                if (conversationContext.references != null) {
-                    addWithFilterStatus(this.listTmp, conversationContext.references)
+                    if (conversationContext.descendants != null) {
+                        addWithFilterStatus(listNew, conversationContext.descendants)
+                    }
+
+                    this@ColumnTask_Loading.listTmp = listNew
+                } else {
+                    this@ColumnTask_Loading.listTmp = addOne(
+                        addOne(null, targetStatus),
+                        TootMessageHolder(context.getString(R.string.toot_context_parse_failed))
+                    )
                 }
 
-                if (conversationContext.ancestors != null) {
-                    addWithFilterStatus(this.listTmp, conversationContext.ancestors)
-                }
-
-                addOne(listTmp, targetStatus)
-
-                if (conversationContext.descendants != null) {
-                    addWithFilterStatus(this.listTmp, conversationContext.descendants)
-                }
-            } else {
-                this.listTmp = addOne(this.listTmp, targetStatus)
-                this.listTmp = addOne(
-                    this.listTmp,
-                    TootMessageHolder(context.getString(R.string.toot_context_parse_failed))
-                )
+                statusResult
             }
-
-            result
         }
     }
 

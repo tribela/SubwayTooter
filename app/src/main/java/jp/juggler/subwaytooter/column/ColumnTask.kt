@@ -3,6 +3,7 @@ package jp.juggler.subwaytooter.column
 import android.content.Context
 import android.os.SystemClock
 import jp.juggler.subwaytooter.api.ApiPath
+import jp.juggler.subwaytooter.api.TootApiCallback
 import jp.juggler.subwaytooter.api.TootApiClient
 import jp.juggler.subwaytooter.api.TootApiResult
 import jp.juggler.subwaytooter.api.TootParser
@@ -47,6 +48,16 @@ abstract class ColumnTask(
         get() = job?.isCancelled ?: false
 
     var parser = TootParser(context, accessInfo, highlightTrie = highlightTrie)
+
+    // 並行リクエスト用。メインのクライアントと同じコールバックを共有する
+    internal var apiCallback: TootApiCallback? = null
+
+    internal fun parallelClient(): TootApiClient {
+        val callback = apiCallback ?: object : TootApiCallback {
+            override suspend fun isApiCancelled() = isCancelled
+        }
+        return TootApiClient(context, callback = callback).apply { account = accessInfo }
+    }
 
     var listTmp: ArrayList<TimelineItem>? = null
 
