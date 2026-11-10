@@ -138,18 +138,25 @@ class ColumnTask_Loading(
         column.taskProgress = null
 
         if (result.error != null) {
-            column.mInitialLoadingError = "${result.error} ${result.requestInfo}".trim()
-            if (column.bHasSeed) {
-                val kept = column.listData.filter { it !is TootMessageHolder }
+            if (column.bHasSeed && isDeletedStatusResponse(result)) {
+                // 削除された投稿は既知のデータとしても残さない
+                column.mInitialLoadingError = context.getString(R.string.status_deleted)
+                column.bHasSeed = false
                 column.listData.clear()
-                column.listData.addAll(kept)
-                column.listData.addAll(
-                    listOf(
-                        TootMessageHolder(
-                            context.getString(R.string.load_failed, result.error ?: "")
+            } else {
+                column.mInitialLoadingError = "${result.error} ${result.requestInfo}".trim()
+                if (column.bHasSeed) {
+                    val kept = column.listData.filter { it !is TootMessageHolder }
+                    column.listData.clear()
+                    column.listData.addAll(kept)
+                    column.listData.addAll(
+                        listOf(
+                            TootMessageHolder(
+                                context.getString(R.string.load_failed, result.error ?: "")
+                            )
                         )
                     )
-                )
+                }
             }
         } else {
             column.duplicateMap.clear()
@@ -191,6 +198,17 @@ class ColumnTask_Loading(
         column.viewHolder?.scrollToTop()
 
         column.updateMisskeyCapture()
+    }
+
+    // 会話カラムで投稿そのものの取得が404を返した場合、その投稿は削除されている
+    private fun isDeletedStatusResponse(result: TootApiResult): Boolean {
+        if (result.response?.code != 404) return false
+        when (column.type) {
+            ColumnType.CONVERSATION, ColumnType.CONVERSATION_WITH_REFERENCE -> Unit
+            else -> return false
+        }
+        // context の404ではなく、投稿そのものの取得が404だった
+        return !result.requestInfo.contains("/context")
     }
 
     /////////////////////////////////////////////////////////////////
