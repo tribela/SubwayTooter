@@ -3,6 +3,7 @@ package jp.juggler.subwaytooter.mfm
 import android.graphics.Typeface
 import jp.juggler.subwaytooter.span.BlockCodeSpan
 import jp.juggler.subwaytooter.span.BlockQuoteSpan
+import jp.juggler.subwaytooter.span.InlineCodeSpan
 import jp.juggler.subwaytooter.table.daoAcctColor
 import jp.juggler.util.data.encodePercent
 import jp.juggler.util.data.notEmpty
@@ -51,11 +52,7 @@ enum class NodeType(val render: SpanOutputEnv.(Node) -> Unit) {
             val sp = MisskeySyntaxHighlighter.parse(text)
             appendText(text)
             spanList.addWithOffset(sp, start)
-            spanList.addLast(start, sb.length, android.text.style.BackgroundColorSpan(0x40808080))
-            spanList.addLast(
-                start, sb.length,
-                FontSpan(Typeface.MONOSPACE)
-            )
+            spanList.addLast(start, sb.length, InlineCodeSpan())
         }
     }),
 

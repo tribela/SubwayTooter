@@ -1,6 +1,5 @@
 package jp.juggler.subwaytooter.span
 
-import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
@@ -9,29 +8,25 @@ import android.text.Layout
 import android.text.TextPaint
 import android.text.style.LeadingMarginSpan
 import android.text.style.MetricAffectingSpan
-import jp.juggler.subwaytooter.R
-import jp.juggler.subwaytooter.pref.lazyContext
-import jp.juggler.util.ui.attrColor
+import androidx.core.graphics.ColorUtils
 import kotlin.math.max
 import kotlin.math.min
 
 /**
- * コードブロック用の装飾スパン
+ * コードブロック用の装飾スパン。文字色は触らず、背景は描画時の本文色から作る。
+ * スパンは解析時の内容キャッシュに残るので、ここでテーマ色を焼き込むと本文とずれる。
  */
 class BlockCodeSpan(
-    context: Context = lazyContext,
     private var typeface: Typeface = Typeface.MONOSPACE,
     private var relativeTextSize: Float = 0.7f,
     private var margin: Int = 0,
-    private var textColor: Int = context.attrColor(R.attr.colorTextContent),
-    private var backgroundColor: Int = 0x40808080,
+    private val backgroundAlpha: Int = 0x1f,
 ) : MetricAffectingSpan(), LeadingMarginSpan {
 
     private val rect = Rect()
     private val paint = Paint()
 
     private fun apply(paint: TextPaint) {
-        paint.color = textColor
         paint.typeface = typeface
         paint.textSize = paint.textSize * relativeTextSize
     }
@@ -63,7 +58,7 @@ class BlockCodeSpan(
         layout: Layout,
     ) {
         paint.style = Paint.Style.FILL
-        paint.color = backgroundColor
+        paint.color = ColorUtils.setAlphaComponent(p.color, backgroundAlpha)
 
         val line = layout.getLineForOffset(start)
         val left = layout.getParagraphLeft(line)

@@ -8,18 +8,15 @@ import android.text.Layout
 import android.text.TextPaint
 import android.text.style.LeadingMarginSpan
 import android.text.style.MetricAffectingSpan
-import jp.juggler.subwaytooter.R
 import jp.juggler.subwaytooter.pref.lazyContext
-import jp.juggler.util.ui.attrColor
 import kotlin.math.max
 import kotlin.math.min
 
 /**
- * コードブロック用の装飾スパン
+ * 水平線のスパン。線の色は描画時の本文色から取るので、どのテーマでも見える。
  */
 class HrSpan(
     context: Context = lazyContext,
-    private var lineColor: Int = context.attrColor(R.attr.colorTextContent),
     private var lineHeight: Int = (context.resources.displayMetrics.density * 1f + 0.5f).toInt(),
 ) : MetricAffectingSpan(), LeadingMarginSpan {
 
@@ -57,7 +54,7 @@ class HrSpan(
         layout: Layout,
     ) {
         paint.style = Paint.Style.FILL
-        paint.color = lineColor
+        paint.color = p.color
 
         val lineY = (top + bottom).shr(1)
         val lineT = lineY - lineHeight.shr(1)

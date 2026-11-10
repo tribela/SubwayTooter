@@ -19,14 +19,14 @@
     <color name="Light_colorColumnSettingBackground">#bbb</color>
     <color name="Light_colorColumnStripBackground">#fff</color>
     <color name="Light_colorConversationMainTootBg">#200088ff</color>
-    <color name="Light_colorLink">#0080ff</color>
+    <color name="Light_colorLink">#0070E0</color>
     <color name="Light_colorPostFormBackground">#eee</color>
     <color name="Light_colorActionBarBg">#ccc</color>
     <color name="Light_colorActionBarBgDark">#bbb</color>
     <color name="Light_colorActionBarBgStacked">#ddd</color>
     <color name="Light_colorProfileBackgroundMask">#C0FFFFFF</color>
     <color name="Light_colorRefreshErrorBg">#D222</color>
-    <color name="Light_colorRegexFilterError">#f00</color>
+    <color name="Light_colorRegexFilterError">#C62828</color>
     <color name="Light_colorReplyBackground">#cccccc</color>
     <color name="Light_colorRippleEffect">#FF808080</color>
     <color name="Light_colorSearchFormBackground">#bee6ff</color>
@@ -34,14 +34,14 @@
     <color name="Light_colorShowMediaText">#fff</color>
     <color name="Light_colorStatusButtonsPopupBg">#cccccc</color>
     <color name="Light_colorSwitchOff">#cccccc</color>
-    <color name="Light_colorTextColumnHeaderAcct">#80000000</color>
+    <color name="Light_colorTextColumnHeaderAcct">#B3000000</color>
     <color name="Light_colorTextColumnHeaderName">#616161</color>
-    <color name="Light_colorTextColumnHeaderPageNumber">#80000000</color>
-    <color name="Light_colorTextColumnListItem">#80000000</color>
+    <color name="Light_colorTextColumnHeaderPageNumber">#B3000000</color>
+    <color name="Light_colorTextColumnListItem">#B3000000</color>
     <color name="Light_colorTextContent">#ff333333</color>
     <color name="Light_colorTextDivider">#80000000</color>
     <color name="Light_colorTextHelp">#5a5a5a</color>
-    <color name="Light_colorTextHint">#40000000</color>
+    <color name="Light_colorTextHint">#80000000</color>
 
     <color name="Light_colorTextTimeSmall">#ff666666</color>
     <color name="Light_colorThumbnailBackground">#20000000</color>
@@ -92,10 +92,10 @@
     <color name="Dark_colorTextColumnHeaderAcct">#e4e4e4</color>
     <color name="Dark_colorTextColumnHeaderName">#e4e4e4</color>
     <color name="Dark_colorTextColumnHeaderPageNumber">#e4e4e4</color>
-    <color name="Dark_colorTextColumnListItem">#66FFFFFF</color>
+    <color name="Dark_colorTextColumnListItem">#B3FFFFFF</color>
     <color name="Dark_colorTextContent">#dddddd</color>
     <color name="Dark_colorTextHelp">#ccFFFFFF</color>
-    <color name="Dark_colorTextHint">#40ffffff</color>
+    <color name="Dark_colorTextHint">#80ffffff</color>
 
     <color name="Dark_colorTextTimeSmall">#BBBBBB</color>
     <color name="Dark_colorThumbnailBackground">#20ffffff</color>
@@ -125,7 +125,7 @@
     <color name="Mastodon_colorColumnStripBackground">#444B5D</color>
     <color name="Mastodon_colorConversationMainTootBg">#2000a2ff</color>
 
-    <color name="Mastodon_colorLink">#FE4E92D6</color>
+    <color name="Mastodon_colorLink">#FF6FA8E8</color>
     <color name="Mastodon_colorListItemDrag">#AA2F6091</color>
     <color name="Mastodon_colorPostFormBackground">#222</color>
     <color name="Mastodon_colorActionBarBg">#444B5D</color>
@@ -133,7 +133,7 @@
     <color name="Mastodon_colorActionBarBgStacked">#444B5D</color>
     <color name="Mastodon_colorProfileBackgroundMask">#C0000000</color>
     <color name="Mastodon_colorRefreshErrorBg">#D222</color>
-    <color name="Mastodon_colorRegexFilterError">#f00</color>
+    <color name="Mastodon_colorRegexFilterError">#FF7A7A</color>
     <color name="Mastodon_colorReplyBackground">#333</color>
     <color name="Mastodon_colorRippleEffect">#C1607ECC</color>
     <color name="Mastodon_colorSearchFormBackground">#333370</color>
@@ -146,10 +146,10 @@
     <color name="Mastodon_colorTextColumnHeaderAcct">#e4e4e4</color>
     <color name="Mastodon_colorTextColumnHeaderName">#e4e4e4</color>
     <color name="Mastodon_colorTextColumnHeaderPageNumber">#e4e4e4</color>
-    <color name="Mastodon_colorTextColumnListItem">#66FFFFFF</color>
+    <color name="Mastodon_colorTextColumnListItem">#B3FFFFFF</color>
     <color name="Mastodon_colorTextContent">#dddddd</color>
     <color name="Mastodon_colorTextHelp">#bbFFFFFF</color>
-    <color name="Mastodon_colorTextHint">#40FFFFFF</color>
+    <color name="Mastodon_colorTextHint">#80FFFFFF</color>
 
     <color name="Mastodon_colorTextTimeSmall">#BBBBBB</color>
     <color name="Mastodon_colorThumbnailBackground">#20ffffff</color>
