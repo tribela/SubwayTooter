@@ -62,6 +62,28 @@ class ActionsDialogInitializer(
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun showSuspend(context: Context): Action =
         suspendCancellableCoroutine { cont ->
+            // グループも詰めた表示も不要なダイアログは、これまで通りフレームワークに
+            // リストを作らせる。フレームワークはテーマの listItemLayout を使うので、
+            // 自前で android.R.layout.select_dialog_item を inflate した場合のように
+            // 行の高さや文字サイズが他のメニューとずれることがない。
+            if (!compact && items.none { it is Item.Group }) {
+                val actions = items.map { (it as Item.Single).action }
+                val dialog = android.app.AlertDialog.Builder(context).apply {
+                    title?.notEmpty()?.let { setTitle(it) }
+                    setNegativeButton(android.R.string.cancel, null)
+                    setItems(actions.map { it.caption }.toTypedArray()) { d, i ->
+                        if (cont.isActive) cont.resume(actions[i]) { _, _, _ -> }
+                        d.dismissSafe()
+                    }
+                    setOnDismissListener {
+                        if (cont.isActive) cont.resumeWithException(cancellationException())
+                    }
+                }.create()
+                cont.invokeOnCancellation { dialog.dismissSafe() }
+                dialog.show()
+                return@suspendCancellableCoroutine
+            }
+
             val expanded = HashSet<Item.Group>()
             val alwaysExpand = PrefB.bpAlwaysExpandContextMenuItems.value
             if (alwaysExpand) expanded.addAll(items.filterIsInstance<Item.Group>())
