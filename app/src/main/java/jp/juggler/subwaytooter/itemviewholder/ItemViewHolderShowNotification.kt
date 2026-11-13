@@ -77,6 +77,9 @@ fun ItemViewHolder.showNotification(n: TootNotification) {
         NotificationType.Update ->
             showNotificationUpdate(n, nAccountRef, nStatus)
 
+        NotificationType.QuotedUpdate ->
+            showNotificationQuotedUpdate(n, nAccountRef, nStatus)
+
         NotificationType.StatusReference ->
             showNotificationStatusReference(n, nAccountRef, nStatus)
 
@@ -234,6 +237,23 @@ private fun ItemViewHolder.showNotificationUpdate(
             n.time_created_at,
             iconId,
             R.string.display_name_updates_post
+        )
+    }
+    nStatus?.let { showNotificationStatus(it, colorBg) }
+}
+
+private fun ItemViewHolder.showNotificationQuotedUpdate(
+    n: TootNotification,
+    nAccountRef: TootAccountRef?,
+    nStatus: TootStatus?,
+) {
+    val colorBg = PrefI.ipEventBgColorUpdate.value
+    nAccountRef?.let {
+        showBoost(
+            it,
+            n.time_created_at,
+            R.drawable.ic_history,
+            R.string.display_name_quoted_update
         )
     }
     nStatus?.let { showNotificationStatus(it, colorBg) }

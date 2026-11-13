@@ -140,6 +140,9 @@ class TootNotification(
             NotificationType.Quote,
                 -> context.getString(R.string.display_name_quoted_by, name)
 
+            NotificationType.QuotedUpdate,
+                -> context.getString(R.string.display_name_quoted_update, name)
+
             NotificationType.Status,
                 -> context.getString(R.string.display_name_posted_by, name)
 

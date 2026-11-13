@@ -90,6 +90,7 @@
     <string name="display_name_follow_request_by">%1$s sent follow request</string>
     <string name="display_name_follow_request_accepted_by">%1$s accepted your follow request</string>
     <string name="display_name_quoted_by">%1$s quoted</string>
+    <string name="display_name_quoted_update">%1$s updated a post you quoted</string>
     <string name="display_name_posted_by">%1$s posted</string>
     <string name="display_name_updates_post">%1$s updates the post</string>
     <string name="display_name_references_post">%1$s references your post</string>
