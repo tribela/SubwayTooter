@@ -939,6 +939,7 @@
     <string name="show_translate_button">Show translate button</string>
     <string name="show_external_translate_button">Show external translate button</string>
     <string name="translation_inline">Inline translation</string>
+    <string name="translation_settings">Translation</string>
     <string name="translation_external">External translation</string>
     <string name="translation_app_external">External translation app</string>
     <string name="custom_share_buttons">Custom share buttons</string>
