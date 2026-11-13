@@ -73,6 +73,12 @@
                         android:src="@drawable/ic_translate" />
 
                     <ImageButton
+                        android:id="@+id/btnStatusQuote2"
+                        style="@style/context_menu_image_button"
+                        android:contentDescription="@string/quote"
+                        android:src="@drawable/ic_quote" />
+
+                    <ImageButton
                         android:id="@+id/btnStatusHistory2"
                         style="@style/context_menu_image_button"
                         android:contentDescription="@string/edit_history"
@@ -166,11 +172,6 @@
                         android:id="@+id/btnQuoteAnotherAccount"
                         style="@style/context_menu_text_button"
                         android:text="@string/quote" />
-
-                    <Button
-                        android:id="@+id/btnQuoteTootBT"
-                        style="@style/context_menu_text_button"
-                        android:text="@string/quote_toot_bt" />
                 </LinearLayout>
 
                 <Button
