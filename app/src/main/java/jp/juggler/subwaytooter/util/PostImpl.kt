@@ -322,7 +322,16 @@ class PostImpl(
             EmojiDecoder.decodeShortCode(spoilerText ?: "", emojiMapCustom = emojiMapCustom)
 
         inReplyToId?.toString()
-            ?.let { json[if (useQuoteToot) "quote_id" else "in_reply_to_id"] = it }
+            ?.let {
+                val key = when {
+                    !useQuoteToot -> "in_reply_to_id"
+                    // Mastodon 4.4+ (REST API version 6 以降) は quoted_status_id を使う
+                    (instance.mastodonApiVersion ?: 0) >= 6 -> "quoted_status_id"
+                    // fedibird/Hostdon などの拡張
+                    else -> "quote_id"
+                }
+                json[key] = it
+            }
 
         if (attachmentList != null) {
             json["media_ids"] = buildJsonArray {
@@ -609,7 +618,15 @@ class PostImpl(
                             errorMessage.isNullOrBlank() -> error("(missing error detail)")
 
                             errorMessage.contains("HTTP 404") ->
-                                error("$ex\n${activity.getString(R.string.post_404_desc)}")
+                                error(
+                                    when {
+                                        useQuoteToot -> activity.getString(
+                                            R.string.post_quote_not_allowed
+                                        )
+
+                                        else -> "$ex\n${activity.getString(R.string.post_404_desc)}"
+                                    }
+                                )
 
                             else -> throw ex
                         }

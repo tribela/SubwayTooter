@@ -19,6 +19,7 @@
     <string name="confirm_delete_attachment">이 첨부파일을 삭제할까요\?</string>
     <string name="post_error_contents_empty">내용을 입력하세요.</string>
     <string name="quoted_post_content_warning">CW: %1$s</string>
+    <string name="post_quote_not_allowed">이 글은 인용할 수 없습니다. 삭제되었거나 인용 정책이 허용하지 않을 수 있습니다.</string>
     <string name="confirm">확인</string>
     <string name="app_name">서브웨이 투터</string>
     <string name="instance_not_specified">서버 지정 안 됨</string>
