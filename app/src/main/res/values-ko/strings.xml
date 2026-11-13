@@ -888,6 +888,7 @@
     <string name="default_">기본</string>
     <string name="translation">번역됨</string>
     <string name="translation_inline">인라인 번역</string>
+    <string name="translation_settings">번역</string>
     <string name="translation_external">외부 번역</string>
     <string name="show_external_translate_button">외부 번역 버튼 표시</string>
     <string name="translation_app_external">외부 번역 앱</string>

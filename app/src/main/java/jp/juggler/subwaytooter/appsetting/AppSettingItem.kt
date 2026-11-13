@@ -390,7 +390,7 @@ val appSettingRoot = AppSettingItem(null, SettingType.Section, R.string.app_sett
         sw(PrefB.bpEnableDomainTimeline, R.string.enable_domain_timeline)
     }
 
-    section(R.string.translation_inline) {
+    section(R.string.translation_settings) {
         item(
             SettingType.Spinner,
             PrefS.spTranslationLanguage,
@@ -413,9 +413,7 @@ val appSettingRoot = AppSettingItem(null, SettingType.Section, R.string.app_sett
                 sp.value = loadTranslationLanguageList().getOrNull(index)?.first ?: ""
             }
         }
-    }
 
-    section(R.string.translation_external) {
         sw(PrefB.bpShowTranslateButton, R.string.show_external_translate_button)
 
         item(

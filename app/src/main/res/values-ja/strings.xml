@@ -937,6 +937,7 @@
     <string name="show_translate_button">翻訳ボタンを表示する</string>
     <string name="show_external_translate_button">外部翻訳ボタンを表示する</string>
     <string name="translation_inline">インライン翻訳</string>
+    <string name="translation_settings">翻訳</string>
     <string name="translation_external">外部翻訳</string>
     <string name="translation_app_external">外部翻訳アプリ</string>
     <string name="custom_share_buttons">カスタム共有ボタン</string>
