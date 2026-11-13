@@ -171,6 +171,7 @@ fun ItemViewHolder.showStatus(
     tvContent.minLines = r?.originalLineCount ?: -1
 
     showPreviewCard(status)
+    showQuotedStatus(status)
     showSpoilerTextAndContent(status)
     showAttachments(status)
     makeReactionsView(status)

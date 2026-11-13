@@ -1048,6 +1048,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="muted_quote">Muted quote</string>
+    <string name="quoted_post_content_warning">CW: %1$s</string>
     <string name="button_accent_color">Button accent color</string>
     <string name="search_bar_background_color">Search bar background color (app restart required)</string>
     <string name="announcement_background_color">Announcements background color (app restart required)</string>

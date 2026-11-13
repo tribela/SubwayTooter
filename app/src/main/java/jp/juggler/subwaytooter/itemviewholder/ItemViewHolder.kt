@@ -75,6 +75,7 @@ class ItemViewHolder(
 
     companion object {
         const val MEDIA_VIEW_COUNT = 4
+        const val QUOTED_MEDIA_VIEW_COUNT = 4
 
         val log = LogCategory("ItemViewHolder")
         var toot_color_unlisted: Int = 0
@@ -168,6 +169,15 @@ class ItemViewHolder(
     lateinit var btnCardImageHide: ImageButton
     lateinit var btnCardImageShow: BlurhashView
 
+    lateinit var llQuoted: View
+    lateinit var ivQuotedAvatar: MyNetworkImageView
+    lateinit var tvQuotedName: MyTextView
+    lateinit var tvQuotedAcct: MyTextView
+    lateinit var tvQuotedTime: MyTextView
+    lateinit var tvQuotedContent: MyTextView
+    lateinit var llQuotedMedia: LinearLayout
+    val ivQuotedThumbnails = ArrayList<MyNetworkImageView>()
+
     lateinit var llExtra: LinearLayout
 
     lateinit var llConversationIcons: View
@@ -214,6 +224,8 @@ class ItemViewHolder(
     val contentInvalidator: NetworkEmojiInvalidator
     val spoilerInvalidator: NetworkEmojiInvalidator
     val lastActiveInvalidator: NetworkEmojiInvalidator
+    val quotedNameInvalidator: NetworkEmojiInvalidator
+    val quotedContentInvalidator: NetworkEmojiInvalidator
     val extraInvalidatorList = ArrayList<NetworkEmojiInvalidator>()
 
     var boostedAction: ItemViewHolder.() -> Unit = defaultBoostedAction
@@ -238,15 +250,18 @@ class ItemViewHolder(
             btnShowMedia,
             ivAvatar,
             ivCardImage,
+            ivQuotedAvatar,
             llBoosted,
             llFilter,
             llFollow,
+            llQuoted,
             llReply,
             llTrendTag,
         )) {
             v.setOnClickListener(this)
         }
         ivMediaThumbnails.forEach { it.setOnClickListener(this) }
+        ivQuotedThumbnails.forEach { it.setOnClickListener(this) }
         tvMediaDescriptions.forEach {
             it.isClickable = true
             it.setOnClickListener(this)
@@ -257,6 +272,7 @@ class ItemViewHolder(
             btnFollow,
             ivCardImage,
             llBoosted,
+            llQuoted,
             llReply,
             llFollow,
             llConversationIcons,
@@ -272,6 +288,7 @@ class ItemViewHolder(
             tvMentions,
             tvContentWarning,
             tvCardText,
+            tvQuotedContent,
             tvMessageHolder,
         )) {
             v.movementMethod = MyLinkMovementMethod
@@ -296,6 +313,8 @@ class ItemViewHolder(
             tvConversationParticipants.textSize = f
 
             tvMediaDescriptions.forEach { it.textSize = f }
+            tvQuotedContent.textSize = f
+            tvQuotedName.textSize = f
         }
 
         var f: Float
@@ -316,6 +335,8 @@ class ItemViewHolder(
             tvTime.textSize = f
             tvTrendTagDesc.textSize = f
             tvFilterDetail.textSize = f
+            tvQuotedAcct.textSize = f
+            tvQuotedTime.textSize = f
         }
 
         ActMain.timelineSpacing?.let { spacing ->
@@ -334,6 +355,7 @@ class ItemViewHolder(
             tvFilterPhrase.setLineSpacing(0f, spacing)
             tvMediaDescriptions.forEach { it.setLineSpacing(0f, spacing) }
             tvCardText.setLineSpacing(0f, spacing)
+            tvQuotedContent.setLineSpacing(0f, spacing)
             tvConversationIconsMore.setLineSpacing(0f, spacing)
             tvConversationParticipants.setLineSpacing(0f, spacing)
             tvBoosted.setLineSpacing(0f, spacing)
@@ -365,12 +387,21 @@ class ItemViewHolder(
         this.followInvalidator = NetworkEmojiInvalidator(activity.handler, tvFollowerName)
         this.nameInvalidator = NetworkEmojiInvalidator(activity.handler, tvName)
         this.lastActiveInvalidator = NetworkEmojiInvalidator(activity.handler, tvLastStatusAt)
+        this.quotedNameInvalidator = NetworkEmojiInvalidator(activity.handler, tvQuotedName)
+        this.quotedContentInvalidator = NetworkEmojiInvalidator(activity.handler, tvQuotedContent)
 
         val cardBackground = llCardOuter.background
         if (cardBackground is PreviewCardBorder) {
             val density = activity.density
             cardBackground.round = (density * 8f)
             cardBackground.width = (density * 1f)
+        }
+
+        val quotedBackground = llQuoted.background
+        if (quotedBackground is PreviewCardBorder) {
+            val density = activity.density
+            quotedBackground.round = (density * 8f)
+            quotedBackground.width = (density * 1f)
         }
 
         val textShowMedia = SpannableString(activity.getString(R.string.tap_to_show))
@@ -588,6 +619,76 @@ class ItemViewHolder(
             }.lparams(matchParent, matchParent)
         }
 
+    private fun _LinearLayout.inflateQuoted(actMain: ActMain) {
+        val thumbnailHeight = (actMain.appState.mediaThumbHeight * 0.7f).toInt()
+        llQuoted = verticalLayout {
+            lparams(matchParent, wrapContent) {
+                topMargin = dip(4)
+            }
+            padding = dip(6)
+            background = PreviewCardBorder()
+
+            linearLayout {
+                lparams(matchParent, wrapContent)
+                gravity = Gravity.CENTER_VERTICAL
+
+                ivQuotedAvatar = myNetworkImageView {
+                    contentDescription = context.getString(R.string.thumbnail)
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                }.lparams(dip(24), dip(24)) {
+                    endMargin = dip(4)
+                }
+
+                verticalLayout {
+                    lparams(0, wrapContent) {
+                        weight = 1f
+                    }
+
+                    tvQuotedName = myTextView {
+                        ellipsize = TextUtils.TruncateAt.END
+                        maxLines = 1
+                        textSize = 13f
+                    }.lparams(matchParent, wrapContent)
+
+                    tvQuotedAcct = myTextView {
+                        ellipsize = TextUtils.TruncateAt.END
+                        maxLines = 1
+                        textSize = 12f
+                    }.lparams(matchParent, wrapContent)
+                }
+
+                tvQuotedTime = myTextView {
+                    gravity = Gravity.END
+                    startPadding = dip(4)
+                    textSize = 12f
+                }.lparams(wrapContent, wrapContent)
+            }
+
+            tvQuotedContent = myTextView {
+                setLineSpacing(lineSpacingExtra, 1.1f)
+            }.lparams(matchParent, wrapContent) {
+                topMargin = dip(3)
+            }
+
+            llQuotedMedia = linearLayout {
+                lparams(matchParent, wrapContent) {
+                    topMargin = dip(3)
+                }
+                ivQuotedThumbnails.clear()
+                repeat(QUOTED_MEDIA_VIEW_COUNT) { idx ->
+                    myNetworkImageView {
+                        background = resDrawable(R.drawable.bg_thumbnail)
+                        contentDescription = context.getString(R.string.thumbnail)
+                        scaleType = ImageView.ScaleType.CENTER_CROP
+                    }.lparams(0, thumbnailHeight) {
+                        weight = 1f
+                        if (idx > 0) startMargin = dip(4)
+                    }.let { ivQuotedThumbnails.add(it) }
+                }
+            }
+        }
+    }
+
     private fun _LinearLayout.inflateCard(actMain: ActMain) {
         llCardOuter = verticalLayout {
             lparams(matchParent, wrapContent) {
@@ -714,6 +815,7 @@ class ItemViewHolder(
             }
 
             val thumbnailHeight = actMain.appState.mediaThumbHeight
+            inflateQuoted(actMain)
             flMedia = when (PrefB.bpVerticalArrangeThumbnails.value) {
                 true -> inflateVerticalMedia(thumbnailHeight)
                 else -> inflateHorizontalMedia(thumbnailHeight)
