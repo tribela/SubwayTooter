@@ -317,6 +317,7 @@ fun Column.isFiltered(item: TootNotification): Boolean {
 
             NotificationType.Status,
             NotificationType.Update,
+            NotificationType.QuotedUpdate,
             NotificationType.StatusReference,
                 -> dontShowNormalToot
 
@@ -358,6 +359,7 @@ fun Column.isFiltered(item: TootNotification): Boolean {
 
             NotificationType.Status,
             NotificationType.Update,
+            NotificationType.QuotedUpdate,
             NotificationType.StatusReference,
                 -> quickFilter != Column.QUICK_FILTER_POST
 

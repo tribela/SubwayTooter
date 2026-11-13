@@ -30,6 +30,9 @@ sealed class NotificationType(
         hideByFavMute = true,
     )
 
+    // (Mastodon 4.4+) 引用した投稿が編集された
+    data object QuotedUpdate : NotificationType("quoted_update")
+
     // フォロー Mastodon, Misskey
     data object Follow : NotificationType(
         "follow",

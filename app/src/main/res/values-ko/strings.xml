@@ -89,6 +89,7 @@
     <string name="display_name_voted_by">%1$s가 투표함</string>
     <string name="display_name_follow_request_by">%1$s가 팔로우 승인 요청함</string>
     <string name="display_name_quoted_by">%1$s가 인용함</string>
+    <string name="display_name_quoted_update">%1$s님이 인용한 글을 수정했습니다</string>
     <string name="display_name_reaction_by">%1$s가 반응함</string>
     <string name="display_name_followed_by">%1$s가 당신을 팔로우함</string>
     <string name="display_name_unfollowed_by">%1$s가 당신을 팔로우 해제함</string>

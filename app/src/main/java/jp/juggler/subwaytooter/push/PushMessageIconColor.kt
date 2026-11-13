@@ -100,6 +100,8 @@ fun NotificationType?.pushMessageIconAndColor(): PushMessageIconColor = when (th
 
     NotificationType.Quote -> Quote
 
+    NotificationType.QuotedUpdate -> Quote
+
     NotificationType.Follow,
     NotificationType.FollowRequestAcceptedMisskey,
         -> Follow

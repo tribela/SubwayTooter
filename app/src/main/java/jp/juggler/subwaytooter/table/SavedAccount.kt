@@ -895,6 +895,7 @@ class SavedAccount(
         NotificationType.FollowRequest -> notificationFollowRequest
         NotificationType.Status -> notificationPost
         NotificationType.Update -> notificationUpdate
+        NotificationType.QuotedUpdate -> notificationUpdate
         NotificationType.AdminSignup -> notificationFollow
         NotificationType.AdminReport -> notificationFollow
         NotificationType.EmojiReactionFedibird -> notificationReaction
