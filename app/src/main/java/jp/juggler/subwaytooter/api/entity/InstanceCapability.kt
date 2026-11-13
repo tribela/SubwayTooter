@@ -19,7 +19,13 @@ object InstanceCapability {
 //    TimelineGroupDirectory(CapabilitySource.Fedibird, "timeline_group_directory"),
 
     fun quote(ti: TootInstance?) =
-        ti?.feature_quote == true
+        when {
+            ti == null -> false
+            // Hostdon などの拡張
+            ti.feature_quote -> true
+            // Mastodon 4.4+ (REST API version 6 以降)
+            else -> (ti.mastodonApiVersion ?: 0) >= 6
+        }
 
     fun visibilityMutual(ti: TootInstance?) =
         ti?.fedibirdCapabilities?.contains("visibility_mutual") == true

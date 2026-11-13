@@ -91,6 +91,10 @@ class TootInstance(parser: TootParser, src: JsonObject) {
 
     var feature_quote = false
 
+    // Mastodon REST API version (/api/v2/instance の api_versions.mastodon)
+    // Mastodon 4.4 以降は6以上で、引用投稿に対応している
+    var mastodonApiVersion: Int? = null
+
     var fedibirdCapabilities: Set<String>? = null
 
     var misskeyEndpoints: Set<String>? = null
@@ -215,6 +219,8 @@ class TootInstance(parser: TootParser, src: JsonObject) {
                             ?: false
 
             this.feature_quote = src.boolean("feature_quote") ?: false
+
+            this.mastodonApiVersion = src.jsonObject("api_versions")?.int("mastodon")
 
             this.invites_enabled =
                     // removed on /api/v2/instance

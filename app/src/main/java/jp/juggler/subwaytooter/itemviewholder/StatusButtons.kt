@@ -163,7 +163,7 @@ class StatusButtons(
 
         bindMoreButton()
         bindConversationButton()
-        bindQuoteButton()
+        bindQuoteButton(status)
         bindReplyButton(status)
         bindBoostButton(status)
         bindReactionButton(status)
@@ -295,8 +295,20 @@ class StatusButtons(
         }
     }
 
-    private fun bindQuoteButton() {
-        btnQuote.vg(ti?.feature_quote == true)?.let {
+    private fun bindQuoteButton(status: TootStatus) {
+        val enabled = when {
+            !InstanceCapability.quote(ti) -> false
+            // サーバが引用を拒否すると分かっている場合は表示しない
+            status.quoteApprovalCurrentUser == "denied" -> false
+            accessInfo.isMisskey -> true
+            // Hostdon などの拡張は可視範囲の制限がない
+            ti?.feature_quote == true -> true
+            // Mastodon は公開/未収載の投稿のみ引用できる
+            else -> status.visibility == TootVisibility.Public ||
+                    status.visibility == TootVisibility.UnlistedHome
+        }
+
+        btnQuote.vg(enabled)?.let {
             setButton(
                 it,
                 true,
