@@ -75,6 +75,11 @@ fun ItemViewHolder.onClickImpl(v: View?) {
             btnShowMedia, btnCardImageShow -> showHideMediaViews(true)
             btnContentWarning -> toggleContentWarning()
             ivAvatar -> clickAvatar(pos)
+            ivQuotedAvatar -> statusShowing?.quote?.account
+                ?.let { activity.userProfileLocal(pos, accessInfo, it) }
+
+            llQuoted -> statusShowing?.quote
+                ?.let { activity.clickConversation(pos, accessInfo, status = it) }
             llBoosted -> boostedAction()
             llReply -> clickReplyInfo(pos, accessInfo, column.type, statusReply, statusShowing)
 
@@ -132,6 +137,11 @@ fun ItemViewHolder.onClickImpl(v: View?) {
             )
 
             else -> {
+                if (ivQuotedThumbnails.any { it === v }) {
+                    statusShowing?.quote
+                        ?.let { activity.clickConversation(pos, accessInfo, status = it) }
+                    return
+                }
                 ivMediaThumbnails.indexOfFirst { it == v }
                     .takeIf { it >= 0 }?.let {
                         clickMedia(it)
@@ -188,6 +198,17 @@ fun ItemViewHolder.onLongClickImpl(v: View?): Boolean {
 
             ivCardImage ->
                 clickCardImage(pos, accessInfo, statusShowing?.card, longClick = true)
+
+            llQuoted -> statusShowing?.quote?.let { quoted ->
+                DlgContextMenu(
+                    activity,
+                    column,
+                    quoted.accountRef,
+                    quoted,
+                    item.cast(),
+                    tvContent
+                ).show()
+            }
 
             btnSearchTag, llTrendTag ->
                 longClickTag(pos, item)

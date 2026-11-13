@@ -73,6 +73,7 @@ fun ItemViewHolder.bind(
                                 v === tvFollowerName ||
                                 v === tvBoosted ||
                                 v === tvReply ||
+                                v === tvQuotedName ||
                                 v === tvTrendTagCount ||
                                 v === tvTrendTagName ||
                                 v === tvConversationIconsMore ||
@@ -143,6 +144,7 @@ fun ItemViewHolder.bind(
         flCardImage.visibility = View.GONE
         llBoosted.visibility = View.GONE
         llCardOuter.visibility = View.GONE
+        llQuoted.visibility = View.GONE
         llConversationIcons.visibility = View.GONE
         llFilter.visibility = View.GONE
         llFollow.visibility = View.GONE
@@ -178,6 +180,8 @@ fun ItemViewHolder.bind(
         tvMentions.setTextColor(colorTextContent)
         tvMessageHolder.setTextColor(colorTextContent)
         tvName.setTextColor(colorTextContent)
+        tvQuotedContent.setTextColor(colorTextContent)
+        tvQuotedName.setTextColor(colorTextContent)
         tvReply.setTextColor(colorTextContent)
         tvTrendTagCount.setTextColor(colorTextContent)
         tvTrendTagName.setTextColor(colorTextContent)
@@ -188,6 +192,9 @@ fun ItemViewHolder.bind(
         //NSFWは文字色固定 btnShowMedia.setTextColor( colorTextContent );
 
         (llCardOuter.background as? PreviewCardBorder)?.color =
+            colorPreviewCardBorder(colorTextContent)
+
+        (llQuoted.background as? PreviewCardBorder)?.color =
             colorPreviewCardBorder(colorTextContent)
 
         val colorTextAcct = column.getAcctColor()

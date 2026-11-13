@@ -180,6 +180,13 @@ class TootStatus(
     // このstatusがquoteだった場合、ミュート済みかどうか示すフラグ
     var quote_muted: Boolean = false,
 
+    // Mastodon 4.4+ で引用している投稿。
+    // Misskeyの引用Renoteは reblog と isQuoteToot で表現する。
+    var quote: TootStatus? = null,
+
+    // Mastodon 4.4+ の quote_approval.current_user (automatic/manual/denied/unknown)
+    var quoteApprovalCurrentUser: String? = null,
+
     // Misskey 12.3
     var isPromoted: Boolean = false,
     var isFeatured: Boolean = false,
@@ -1070,29 +1077,41 @@ class TootStatus(
                 ServiceType.MISSKEY, ServiceType.NOTESTOCK -> error("will not happen")
             }
 
-            val quote = when {
+            // Mastodon 4.4+ は quote:{state,quoted_status} の形で引用先を提供する。
+            // fedibird/Hostdon は quote に引用先のstatusを直接入れていた。
+            val quotedStatus = when {
                 !parser.decodeQuote -> null
                 else -> try {
                     parser.decodeQuote = false
-                    parser.status(src.jsonObject("quote"))
+                    val quoteSrc = src.jsonObject("quote")
+                    parser.status(
+                        when {
+                            quoteSrc == null -> null
+                            quoteSrc.jsonObject("quoted_status") != null ->
+                                quoteSrc.jsonObject("quoted_status")
+
+                            quoteSrc.jsonObject("account") != null -> quoteSrc
+                            else -> null
+                        }
+                    )
                 } finally {
                     parser.decodeQuote = true
                 }
             }
 
-            val quote_id = quote?.id ?: EntityId.mayNull(src.string("quote_id"))
+            val quote_id = quotedStatus?.id ?: EntityId.mayNull(src.string("quote_id"))
             val isQuoteToot = quote_id != null
             val quote_muted = src.boolean("quote_muted") ?: false
 
-            // Pinned TL を取得した時にreblogが登場することはないので、reblogについてpinned 状態を気にする必要はない
-            // Hostdon QT と通常のreblogが同時に出ることはないので、quoteが既出ならreblogのjsonデータは見ない
-            val reblog = quote ?: parser.status(src.jsonObject("reblog"))
+            val reblog = parser.status(src.jsonObject("reblog"))
 
             val removeQt = false
 
             // content
             val content = src.string("content")?.let { sv ->
                 when {
+                    quotedStatus != null -> reQuoteInline.replace(sv, "")
+
                     removeQt -> {
                         log.d("removeQt? $sv")
                         val reQuoteTootRemover =
@@ -1240,13 +1259,11 @@ class TootStatus(
 
                 // 2.6.0からステータスにもカード情報が含まれる
                 card = parseItem(src.jsonObject("card")) { TootCard.tootCard(it) }
-                if (card == null && quote != null) {
-                    // 引用Renoteにプレビューカードをでっちあげる
-                    card = TootCard.tootCard(parser, quote)
-                    // content中のQTの表現が四角括弧の有無とか色々あるみたいだし
-                    // 選択してコピーのことを考えたらむしろ削らない方が良い気がしてきた
-                    // removeQt = ! PrefB.bpDontShowPreviewCard(Pref.pref(parser.context))
-                }
+
+                // 引用先はインラインのブロックで表示するのでプレビューカードは作らない
+                quote = quotedStatus
+                quoteApprovalCurrentUser =
+                    src.jsonObject("quote_approval")?.string("current_user")
 
                 decoded_mentions =
                     HTMLDecoder.decodeMentions(parser, this)
@@ -1272,6 +1289,10 @@ class TootStatus(
                 favMuteSet = daoFavMute.acctSet()
             }
         }
+
+        // Mastodon 4.4+ は引用先の URL を表す行を content に埋め込むので、引用ブロックを表示する場合は取り除く
+        private val reQuoteInline =
+            """<p class="quote-inline">.*?</p>""".toRegex(RegexOption.DOT_MATCHES_ALL)
 
         const val LANGUAGE_CODE_UNKNOWN = "unknown"
         const val LANGUAGE_CODE_DEFAULT = "default"
