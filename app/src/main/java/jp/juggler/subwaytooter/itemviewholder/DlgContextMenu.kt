@@ -101,7 +101,6 @@ internal class DlgContextMenu(
             views.btnMute,
             views.btnProfile,
             views.btnQuoteAnotherAccount,
-            views.btnQuoteTootBT,
             views.btnSendMessage,
             views.btnAroundAccountTL,
             views.btnAroundLTL,
@@ -197,7 +196,21 @@ internal class DlgContextMenu(
             views.btnStatusDelete2.vg(statusByMe)
             views.btnGroupStatusByMe.vg(statusByMe)
 
-            views.btnQuoteTootBT.vg(status.reblogParent != null)
+            // 現在のアカウントで引用できる場合のみアイコンを出す
+            val quoteInstance = TootInstance.getCached(accessInfo)
+            views.btnStatusQuote2.vg(
+                when {
+                    !InstanceCapability.quote(quoteInstance) -> false
+                    // サーバが引用を拒否すると分かっている場合は表示しない
+                    status.quoteApprovalCurrentUser == "denied" -> false
+                    accessInfo.isMisskey -> true
+                    // Hostdon などの拡張は可視範囲の制限がない
+                    quoteInstance?.feature_quote == true -> true
+                    // Mastodon は公開/未収載の投稿のみ引用できる
+                    else -> status.visibility == TootVisibility.Public ||
+                            status.visibility == TootVisibility.UnlistedHome
+                }
+            )
 
             views.btnBoostWithVisibility.vg(!accessInfo.isPseudo && !accessInfo.isMisskey)
 
@@ -264,6 +277,7 @@ internal class DlgContextMenu(
                 views.btnStatusEdit2,
                 views.btnStatusHistory2,
                 views.btnStatusTranslate2,
+                views.btnStatusQuote2,
                 views.btnStatusDelete2,
             ).forEach {
                 it.imageTintList = ColorStateList.valueOf(colorButtonNormal)
@@ -610,7 +624,7 @@ internal class DlgContextMenu(
             R.id.btnReactionAnotherAccount -> reactionFromAnotherAccount(accessInfo, status)
             R.id.btnReplyAnotherAccount -> replyFromAnotherAccount(accessInfo, status)
             R.id.btnQuoteAnotherAccount -> quoteFromAnotherAccount(accessInfo, status)
-            R.id.btnQuoteTootBT -> quoteFromAnotherAccount(accessInfo, status.reblogParent)
+            R.id.btnStatusQuote2 -> clickQuote(accessInfo, status)
             R.id.btnConversationAnotherAccount -> conversationOtherInstance(pos, status)
             R.id.btnDelete, R.id.btnStatusDelete2 -> clickStatusDelete(accessInfo, status)
             R.id.btnRedraft -> statusRedraft(accessInfo, status)
@@ -704,7 +718,6 @@ internal class DlgContextMenu(
                 R.id.btnMute -> userMuteFromAnotherAccount(who, accessInfo)
                 R.id.btnBlock -> userBlockFromAnotherAccount(who, accessInfo)
                 R.id.btnQuoteAnotherAccount -> quoteFromAnotherAccount(accessInfo, status)
-                R.id.btnQuoteTootBT -> quoteFromAnotherAccount(accessInfo, status?.reblogParent)
 
                 // events close dialog before action
                 R.id.btnFollow -> {

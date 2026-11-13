@@ -21,13 +21,11 @@ import jp.juggler.subwaytooter.action.clickBoost
 import jp.juggler.subwaytooter.action.clickConversation
 import jp.juggler.subwaytooter.action.clickFavourite
 import jp.juggler.subwaytooter.action.clickFollow
-import jp.juggler.subwaytooter.action.clickQuote
 import jp.juggler.subwaytooter.action.clickReaction
 import jp.juggler.subwaytooter.action.clickReply
 import jp.juggler.subwaytooter.action.conversationOtherInstance
 import jp.juggler.subwaytooter.action.favouriteFromAnotherAccount
 import jp.juggler.subwaytooter.action.followFromAnotherAccount
-import jp.juggler.subwaytooter.action.quoteFromAnotherAccount
 import jp.juggler.subwaytooter.action.reactionFromAnotherAccount
 import jp.juggler.subwaytooter.action.replyFromAnotherAccount
 import jp.juggler.subwaytooter.action.translateStatus
@@ -110,7 +108,6 @@ class StatusButtons(
     private val btnFavourite = holder.btnFavourite
     private val btnBookmark = holder.btnBookmark
     private val btnTranslate = holder.btnTranslate
-    private val btnQuote = holder.btnQuote
     private val btnReaction = holder.btnReaction
     private val llFollow2 = holder.llFollow2
     private val btnFollow2 = holder.btnFollow2
@@ -132,7 +129,6 @@ class StatusButtons(
             btnFavourite,
             btnBookmark,
             btnTranslate,
-            btnQuote,
             btnReaction,
             btnFollow2,
             btnConversation,
@@ -163,7 +159,6 @@ class StatusButtons(
 
         bindMoreButton()
         bindConversationButton()
-        bindQuoteButton(status)
         bindReplyButton(status)
         bindBoostButton(status)
         bindReactionButton(status)
@@ -291,30 +286,6 @@ class StatusButtons(
                     }
                 },
                 activity.getString(R.string.boost)
-            )
-        }
-    }
-
-    private fun bindQuoteButton(status: TootStatus) {
-        val enabled = when {
-            !InstanceCapability.quote(ti) -> false
-            // サーバが引用を拒否すると分かっている場合は表示しない
-            status.quoteApprovalCurrentUser == "denied" -> false
-            accessInfo.isMisskey -> true
-            // Hostdon などの拡張は可視範囲の制限がない
-            ti?.feature_quote == true -> true
-            // Mastodon は公開/未収載の投稿のみ引用できる
-            else -> status.visibility == TootVisibility.Public ||
-                    status.visibility == TootVisibility.UnlistedHome
-        }
-
-        btnQuote.vg(enabled)?.let {
-            setButton(
-                it,
-                true,
-                colorTextContent,
-                R.drawable.ic_quote,
-                activity.getString(R.string.quote)
             )
         }
     }
@@ -618,7 +589,6 @@ class StatusButtons(
                 )
 
                 btnReply -> clickReply(accessInfo, status)
-                btnQuote -> clickQuote(accessInfo, status)
                 btnBoost -> clickBoost(accessInfo, status, willToast = bSimpleList)
                 btnFavourite -> clickFavourite(accessInfo, status, willToast = bSimpleList)
                 btnBookmark -> clickBookmark(accessInfo, status, willToast = bSimpleList)
@@ -673,7 +643,6 @@ class StatusButtons(
                 btnFavourite -> favouriteFromAnotherAccount(accessInfo, status)
                 btnBookmark -> bookmarkFromAnotherAccount(accessInfo, status)
                 btnReply -> replyFromAnotherAccount(accessInfo, status)
-                btnQuote -> quoteFromAnotherAccount(accessInfo, status)
                 btnReaction -> reactionFromAnotherAccount(accessInfo, status)
                 btnConversation -> conversationOtherInstance(nextPosition(column), status)
                 btnFollow2 -> followFromAnotherAccount(
@@ -751,7 +720,6 @@ class StatusButtonsViewHolder(
     lateinit var btnFavourite: CountImageButton
     lateinit var btnBookmark: ImageButton
     lateinit var btnTranslate: ImageButton
-    lateinit var btnQuote: ImageButton
     lateinit var btnReaction: ImageButton
     lateinit var llFollow2: View
     lateinit var btnFollow2: ImageButton
@@ -830,18 +798,6 @@ class StatusButtonsViewHolder(
             scaleType = ImageView.ScaleType.FIT_CENTER
             minimumWidth = buttonHeight
             visibility = View.GONE
-        }.lparams(wrapContent, buttonHeight) {
-            startMargin = marginBetween
-        }
-
-        btnQuote = imageButton {
-            background = ContextCompat.getDrawable(
-                context,
-                R.drawable.btn_bg_transparent_round6dp
-            )
-            setPadding(paddingH, paddingV, paddingH, paddingV)
-            scaleType = ImageView.ScaleType.FIT_CENTER
-            minimumWidth = buttonHeight
         }.lparams(wrapContent, buttonHeight) {
             startMargin = marginBetween
         }
