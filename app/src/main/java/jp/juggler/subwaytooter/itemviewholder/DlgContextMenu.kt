@@ -214,6 +214,24 @@ internal class DlgContextMenu(
 
             views.btnBoostWithVisibility.vg(!accessInfo.isPseudo && !accessInfo.isMisskey)
 
+            views.btnStatusBookmark2.vg(!accessInfo.isPseudo)?.let { button ->
+                val bookmarked = status.bookmarked
+                button.contentDescription = activity.getString(
+                    if (bookmarked) R.string.unbookmark else R.string.bookmark
+                )
+                button.setImageResource(
+                    if (bookmarked) R.drawable.ic_bookmark_added else R.drawable.ic_bookmark
+                )
+                button.imageTintList = ColorStateList.valueOf(
+                    if (bookmarked) {
+                        PrefI.ipButtonBookmarkedColor.value.notZero()
+                            ?: activity.attrColor(R.attr.colorButtonAccentBookmark)
+                    } else {
+                        activity.attrColor(R.attr.colorTextContent)
+                    }
+                )
+            }
+
             views.btnReportStatus.vg(!(statusByMe || accessInfo.isPseudo))
 
             val applicationName = status.application?.name
@@ -618,6 +636,7 @@ internal class DlgContextMenu(
             R.id.btnBoostWithVisibility -> clickBoostWithVisibility(accessInfo, status)
             R.id.btnStatusWebPage -> openCustomTab(status.url)
             R.id.btnText -> launchActText(ActText.createIntent(this, accessInfo, status))
+            R.id.btnStatusBookmark2 -> clickBookmark(accessInfo, status, willToast = true)
             R.id.btnFavouriteAnotherAccount -> favouriteFromAnotherAccount(accessInfo, status)
             R.id.btnBookmarkAnotherAccount -> bookmarkFromAnotherAccount(accessInfo, status)
             R.id.btnBoostAnotherAccount -> boostFromAnotherAccount(accessInfo, status)

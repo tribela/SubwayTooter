@@ -73,6 +73,12 @@
                         android:src="@drawable/ic_translate" />
 
                     <ImageButton
+                        android:id="@+id/btnStatusBookmark2"
+                        style="@style/context_menu_image_button"
+                        android:contentDescription="@string/bookmark"
+                        android:src="@drawable/ic_bookmark" />
+
+                    <ImageButton
                         android:id="@+id/btnStatusQuote2"
                         style="@style/context_menu_image_button"
                         android:contentDescription="@string/quote"
@@ -126,7 +132,6 @@
                     android:id="@+id/btnShareUrlStatus"
                     style="@style/context_menu_text_button"
                     android:text="@string/share_url_more" />
-
 
                 <Button
                     android:id="@+id/btnGroupStatusCrossAccount"
